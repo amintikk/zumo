@@ -52,7 +52,12 @@ export default class PrivacyChoice extends Component<{}, State> {
   render(_: {}, { open }: State) {
     if (!open) return null;
     return (
-      <div class={style.privacyChoice} role="dialog" aria-live="polite">
+      <div
+        class={style.privacyChoice}
+        role="dialog"
+        aria-label={S.consent.label}
+        aria-live="polite"
+      >
         <p class={style.text}>{S.consent.text}</p>
         <div class={style.buttons}>
           <button

@@ -32,6 +32,8 @@ interface Output {
   [outputPath: string]: string;
 }
 
+const buildDate = new Date().toISOString().slice(0, 10);
+
 const toOutput: Output = {
   'index.html': renderPage(<IndexPage />),
   'privacidad/index.html': renderPage(<PrivacyPage />),
@@ -87,11 +89,13 @@ const toOutput: Output = {
     <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
       <url>
         <loc>${siteOrigin}/</loc>
+        <lastmod>${buildDate}</lastmod>
         <changefreq>monthly</changefreq>
         <priority>1.0</priority>
       </url>
       <url>
         <loc>${siteOrigin}/privacidad/</loc>
+        <lastmod>${buildDate}</lastmod>
         <changefreq>yearly</changefreq>
         <priority>0.3</priority>
       </url>

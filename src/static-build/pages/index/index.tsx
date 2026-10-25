@@ -9,6 +9,23 @@ import snackbarCss from 'css:../../../shared/custom-els/snack-bar/styles.css';
 import * as snackbarStyle from '../../../shared/custom-els/snack-bar/styles.css';
 import Head from '../head';
 import { S, lang } from 'shared/strings';
+import { siteOrigin } from 'static-build/utils';
+
+/** Structured data so search engines know this is a free web app */
+const jsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'zumo',
+  url: `${siteOrigin}/`,
+  description: S.meta.description,
+  applicationCategory: 'MultimediaApplication',
+  operatingSystem: 'Any',
+  browserRequirements: 'Requires JavaScript and WebAssembly',
+  inLanguage: lang,
+  isAccessibleForFree: true,
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
+  featureList: S.features.items.map((item) => item.title),
+});
 
 const Index: FunctionalComponent = () => (
   <html lang={lang} class="no-js">
@@ -19,6 +36,12 @@ const Index: FunctionalComponent = () => (
       css={[baseCss, initialCss]}
     />
     <body>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: escapeStyleScriptContent(jsonLd),
+        }}
+      />
       <div id="app">
         <Intro />
         <noscript>

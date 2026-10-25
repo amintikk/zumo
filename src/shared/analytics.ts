@@ -46,3 +46,15 @@ export function setConsent(consent: Consent): void {
 export function reopenConsent(): void {
   window.dispatchEvent(new Event('zumo:consent-open'));
 }
+
+/**
+ * Usage event. Only sent if analytics was accepted. Never include file
+ * names, sizes or anything about the images themselves.
+ */
+export function track(
+  event: string,
+  params: { [key: string]: string | number } = {},
+): void {
+  if (!loaded) return;
+  (window as any).gtag('event', event, params);
+}

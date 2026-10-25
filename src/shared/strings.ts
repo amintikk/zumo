@@ -112,6 +112,7 @@ const es = {
   },
 
   consent: {
+    label: 'Privacidad y analítica',
     text: 'Usamos analítica anónima para saber cuánta gente usa zumo. Tus imágenes nunca salen de tu equipo.',
     reject: 'Rechazar',
     accept: 'Aceptar',
@@ -127,7 +128,7 @@ const es = {
       },
       {
         title: 'Analítica',
-        text: 'Si la aceptas, usamos Google Analytics para contar visitas de forma agregada: páginas vistas, país y tipo de dispositivo. No enviamos nombres de archivo, tamaños ni nada de tus fotos. Si la rechazas, no se carga.',
+        text: 'Si la aceptas, usamos Google Analytics para contar visitas de forma agregada (páginas vistas, país y tipo de dispositivo) y cómo se usa zumo: cuántas imágenes abres, qué formato eliges y si descargas el resultado. Nunca enviamos nombres de archivo, tamaños ni el contenido de tus fotos. Si la rechazas, no se carga.',
       },
       {
         title: 'Lo que se guarda en tu navegador',

@@ -23,6 +23,7 @@ import {
 } from '../../batch/process';
 import { Icon } from 'shared/icons';
 import { S } from 'shared/strings';
+import { track } from 'shared/analytics';
 import { formatBytes, formatNames, savings, mainFormats } from './format';
 
 /** Formats whose feature test passes in this browser */
@@ -110,6 +111,10 @@ export default class Sidebar extends Component<Props, State> {
 
   componentWillUnmount() {
     this.resetBatch();
+  }
+
+  private formatName(): string {
+    return formatNames[this.props.settings.encoderState?.type || ''] || '';
   }
 
   // ---- Settings -----------------------------------------------------------
@@ -207,6 +212,10 @@ export default class Sidebar extends Component<Props, State> {
     if (this.state.zipUrl) URL.revokeObjectURL(this.state.zipUrl);
 
     const keepOriginal = this.state.keepOriginal;
+    track('optimize_batch', {
+      format: formatNames[encoderState.type],
+      image_count: batch.entries.length,
+    });
     this.setState({
       running: true,
       results: [],
@@ -463,6 +472,9 @@ export default class Sidebar extends Component<Props, State> {
               href={ready ? downloadUrl : undefined}
               download={ready ? resultFile!.name : undefined}
               aria-disabled={!ready}
+              onClick={() =>
+                ready && track('download_image', { format: this.formatName() })
+              }
             >
               <Icon name="download" size={15} />
               {S.editor.downloadThis}
@@ -601,6 +613,9 @@ export default class Sidebar extends Component<Props, State> {
             href={ready ? downloadUrl : undefined}
             download={ready ? resultFile!.name : undefined}
             aria-disabled={!ready}
+            onClick={() =>
+              ready && track('download_image', { format: this.formatName() })
+            }
           >
             <Icon name="download" size={18} />
             {ready
@@ -659,6 +674,12 @@ export default class Sidebar extends Component<Props, State> {
             class="btn btn-primary btn-block"
             href={zipUrl}
             download={`${batch.name}-zumo.zip`}
+            onClick={() =>
+              track('download_zip', {
+                format: this.formatName(),
+                image_count: total,
+              })
+            }
           >
             <Icon name="download" size={18} />
             {S.batch.downloadZip} · {formatBytes(zipSize!)}

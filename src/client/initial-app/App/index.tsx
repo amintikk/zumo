@@ -12,6 +12,7 @@ import 'shared/custom-els/snack-bar';
 import Intro from 'shared/prerendered-app/Intro';
 import { Icon } from 'shared/icons';
 import { S } from 'shared/strings';
+import { track } from 'shared/analytics';
 
 const ROUTE_EDITOR = '/editor';
 
@@ -87,6 +88,7 @@ export default class App extends Component<Props, State> {
     const { needsBatch, expandFiles } = await loadExpand();
 
     if (!needsBatch(files)) {
+      track('open_images', { source: 'single', image_count: 1 });
       this.openEditor();
       this.setState({ file: files[0], batch: undefined });
       return;
@@ -99,6 +101,12 @@ export default class App extends Component<Props, State> {
         this.showSnack(S.snack.noImages);
         return;
       }
+      track('open_images', {
+        source: files.some((file) => /\.zip$/i.test(file.name))
+          ? 'zip'
+          : 'files',
+        image_count: entries.length,
+      });
       this.openEditor();
       this.setState({
         file: entries[0].file,
