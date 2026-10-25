@@ -1,27 +1,20 @@
 .output {
   display: contents;
 
-  /* Viewer backdrop: a plain tone, or a checkerboard to inspect transparency */
+  /* Viewer backdrop, painted under the images and never catching pointer
+     events: a plain tone, or a checkerboard to inspect transparency. */
   &::before {
     content: '';
     position: absolute;
     inset: 0;
+    pointer-events: none;
     background: var(--canvas);
-    transition: opacity var(--dur) var(--ease);
   }
 
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    opacity: 0;
+  &.alt-background::before {
     background: repeating-conic-gradient(var(--fill-3) 0 25%, transparent 0 50%)
-      0 0 / 20px 20px;
-    transition: opacity var(--dur) var(--ease);
-  }
-
-  &.alt-background::after {
-    opacity: 1;
+        0 0 / 20px 20px,
+      var(--canvas);
   }
 }
 
@@ -66,7 +59,7 @@
   gap: 2px;
   padding: 4px;
   border-radius: 999px;
-  background: var(--glass-strong);
+  background: color-mix(in srgb, var(--bg-2) 88%, transparent);
   box-shadow: inset 0 0 0 0.5px var(--glass-edge), var(--shadow-pop);
 }
 
@@ -113,11 +106,13 @@
 
 .zoom {
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: center;
+  gap: 1px;
   width: 56px;
   height: 28px;
-  line-height: 28px;
+  padding: 0;
+  line-height: 1;
   border: 0;
   border-radius: 8px;
   background: none;
