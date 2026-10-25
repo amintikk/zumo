@@ -3,148 +3,202 @@
   height: 100%;
   contain: strict;
   display: grid;
-  grid-template-rows: max-content 1fr;
+  grid-template-rows: 52px minmax(0, 40%) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   grid-template-areas:
-    'header'
-    'opts';
+    'top'
+    'stage'
+    'sidebar';
+  background: var(--panel);
+  font-family: var(--font-ui);
 
-  --options-radius: 7px;
-
-  @media (min-width: 600px) {
-    grid-template-rows: max-content 1fr;
-    grid-template-columns: max-content 1fr max-content;
+  @media (min-width: 860px) {
+    grid-template-rows: 56px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) 360px;
     grid-template-areas:
-      'header header header'
-      'optsLeft viewportOpts optsRight';
+      'top top'
+      'stage sidebar';
   }
 }
 
-.options {
-  position: relative;
-  color: #fff;
-  font-size: 1.2rem;
-  max-width: 400px;
-  margin: 0 auto;
-  width: calc(100% - 60px);
-  max-height: 100%;
-  overflow: hidden;
-  grid-area: opts;
-  display: grid;
-  grid-template-rows: 1fr max-content;
-  align-content: end;
-  align-self: end;
-
-  @media (min-width: 600px) {
-    width: 300px;
-    margin: 0;
-  }
-}
-
-.options-1-theme {
-  --main-theme-color: var(--pink);
-  --hot-theme-color: var(--hot-pink);
-  --header-text-color: var(--white);
-  --scroller-radius: var(--options-radius) var(--options-radius) 0 0;
-  --rotate-copyoverbutton-angle: 90deg; /* To point down */
-
-  @media (min-width: 600px) {
-    --scroller-radius: 0 var(--options-radius) var(--options-radius) 0;
-    --rotate-copyoverbutton-angle: 0deg; /* To point right (no change) */
-  }
-}
-
-.options-2-theme {
-  --main-theme-color: var(--blue);
-  --hot-theme-color: var(--deep-blue);
-  --header-text-color: var(--dark-text);
-  --scroller-radius: var(--options-radius) var(--options-radius) 0 0;
-  --rotate-copyoverbutton-angle: -90deg; /* To point up */
-
-  @media (min-width: 600px) {
-    --scroller-radius: var(--options-radius) 0 0 var(--options-radius);
-    --rotate-copyoverbutton-angle: 180deg; /* To point left */
-  }
-}
-
-.options-1 {
-  composes: options;
-  composes: options-1-theme;
-  grid-area: optsLeft;
-}
-
-.options-2 {
-  composes: options;
-  composes: options-2-theme;
-  grid-area: optsRight;
-}
-
-.multi-panel {
-  position: relative;
+.top-bar {
+  grid-area: top;
   display: flex;
-  flex-flow: column;
-  overflow: hidden;
-
-  /* Reorder so headings appear after content: */
-  & > :nth-child(1) {
-    order: 2;
-    margin-bottom: 10px;
-  }
-
-  & > :nth-child(2) {
-    order: 1;
-  }
-
-  & > :nth-child(3) {
-    order: 4;
-  }
-
-  & > :nth-child(4) {
-    order: 3;
-  }
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 0 12px;
+  color: var(--white);
+  background: var(--panel);
+  border-bottom: 1px solid var(--panel-border);
+  font-size: 1.3rem;
 }
 
 .back {
   composes: unbutton from global;
-  position: relative;
-  grid-area: header;
-  margin: 9px;
-  justify-self: start;
-  align-self: start;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  color: var(--white);
 
-  & > svg {
-    width: 47px;
-    overflow: visible;
+  & svg {
+    width: 22px;
+    fill: currentColor;
   }
 
-  &:focus .back-blob {
-    stroke: var(--deep-blue);
-    stroke-width: 5px;
-    animation: strokePulse 500ms ease forwards;
-  }
-
-  @media (min-width: 600px) {
-    margin: 14px;
-
-    & > svg {
-      width: 58px;
-    }
+  &:hover,
+  &:focus-visible {
+    background: var(--panel-input);
   }
 }
 
-@keyframes strokePulse {
+.brand {
+  flex: none;
+  font-weight: 900;
+  font-size: 1.8rem;
+  letter-spacing: -0.04em;
+  color: var(--pink);
+  padding-right: 10px;
+  border-right: 1px solid var(--panel-border);
+
+  @media (max-width: 599px) {
+    display: none;
+  }
+}
+
+.file-name {
+  margin: 0 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--panel-muted);
+}
+
+.preview-nav {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 640px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nav-button {
+  composes: unbutton from global;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--panel-input);
+  color: var(--white);
+
+  & svg {
+    width: 20px;
+    fill: currentColor;
+  }
+
+  &:hover {
+    filter: brightness(1.2);
+  }
+}
+
+.preview-name {
+  flex: 0 1 auto;
+  min-width: 0;
+  padding: 0 10px;
+  text-align: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.preview-count {
+  margin-right: 8px;
+  font-variant-numeric: tabular-nums;
+  color: var(--panel-muted);
+}
+
+.stage {
+  grid-area: stage;
+  position: relative;
+  overflow: hidden;
+  contain: strict;
+  display: grid;
+  grid-template-rows: max-content 1fr;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'header'
+    'viewportOpts';
+}
+
+.stage-label {
+  position: absolute;
+  z-index: 2;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(23, 18, 14, 0.82);
+  color: var(--white);
+  font-size: 1.1rem;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+/* Side by side on desktop, stacked on mobile */
+.stage-label-start {
+  top: 12px;
+  left: 12px;
+
+  @media (max-width: 859px) {
+    top: 60px;
+  }
+}
+
+.stage-label-end {
+  top: 12px;
+  right: 12px;
+  color: var(--pink);
+
+  @media (max-width: 859px) {
+    top: auto;
+    right: auto;
+    bottom: 12px;
+    left: 12px;
+  }
+}
+
+.stage-loading {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  overflow: hidden;
+  pointer-events: none;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 40%;
+    background: var(--pink);
+    animation: loading 1s ease-in-out infinite;
+  }
+}
+
+@keyframes loading {
   from {
-    stroke-width: 8px;
+    left: -40%;
   }
   to {
-    stroke-width: 5px;
+    left: 100%;
   }
-}
-
-.back-blob {
-  fill: var(--hot-pink);
-  opacity: 0.77;
-}
-
-.back-x {
-  fill: var(--white);
 }

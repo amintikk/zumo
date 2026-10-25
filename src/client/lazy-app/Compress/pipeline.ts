@@ -74,6 +74,27 @@ export async function preprocessImage(
   return processedData;
 }
 
+/**
+ * The resize processor is used as a "max size" box: the image is scaled down
+ * to fit inside width × height (0 = no limit), keeping its aspect ratio and
+ * never scaling up. Returns undefined if no resize is needed.
+ */
+export function resizeTarget(
+  width: number,
+  height: number,
+  resizeState: ProcessorState['resize'],
+): { width: number; height: number } | undefined {
+  if (!resizeState.enabled) return;
+  const maxWidth = resizeState.width > 0 ? resizeState.width : Infinity;
+  const maxHeight = resizeState.height > 0 ? resizeState.height : Infinity;
+  const scale = Math.min(1, maxWidth / width, maxHeight / height);
+  if (scale >= 1) return;
+  return {
+    width: Math.max(1, Math.round(width * scale)),
+    height: Math.max(1, Math.round(height * scale)),
+  };
+}
+
 export async function processImage(
   signal: AbortSignal,
   source: SourceImage,
@@ -83,8 +104,28 @@ export async function processImage(
   assertSignal(signal);
   let result = source.preprocessed;
 
-  if (processorState.resize.enabled) {
-    result = await resize(signal, source, processorState.resize, workerBridge);
+  const target = resizeTarget(
+    result.width,
+    result.height,
+    processorState.resize,
+  );
+  if (target) {
+    const method = source.vectorImage
+      ? 'vector'
+      : processorState.resize.method === 'vector'
+      ? 'lanczos3'
+      : processorState.resize.method;
+    result = await resize(
+      signal,
+      source,
+      {
+        ...processorState.resize,
+        ...target,
+        fitMethod: 'stretch',
+        method,
+      } as ProcessorState['resize'],
+      workerBridge,
+    );
   }
   if (processorState.quantize.enabled) {
     result = await workerBridge.quantize(

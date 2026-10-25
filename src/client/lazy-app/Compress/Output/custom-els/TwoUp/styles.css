@@ -60,7 +60,7 @@ two-up[legacy-clip-compat] > :not(.two-up-handle) {
 }
 
 .arrow-right {
-  fill: var(--blue);
+  fill: var(--white);
 }
 
 two-up[orientation='vertical'] .two-up-handle {

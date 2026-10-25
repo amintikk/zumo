@@ -9,15 +9,13 @@ import {
   processImage,
   compressImage,
   processSvg,
+  resizeTarget,
 } from '../Compress/pipeline';
 import type { BatchEntry } from './expand';
 
 export interface BatchSettings {
   processorState: ProcessorState;
   encoderState: EncoderState;
-  /** Images are scaled down (never up) to fit inside these bounds */
-  maxWidth?: number;
-  maxHeight?: number;
   /** Keep the original file if re-encoding in the same format makes it bigger */
   keepOriginalIfLarger: boolean;
 }
@@ -38,46 +36,6 @@ function laneCount(total: number): number {
   const memory: number = (navigator as any).deviceMemory || 8;
   const max = memory <= 4 ? 2 : 4;
   return Math.max(1, Math.min(max, Math.floor(cores / 2), total));
-}
-
-function batchProcessorState(
-  settings: BatchSettings,
-  width: number,
-  height: number,
-  isVector: boolean,
-): ProcessorState {
-  const { processorState, maxWidth, maxHeight } = settings;
-  const scale = Math.min(
-    1,
-    maxWidth ? maxWidth / width : 1,
-    maxHeight ? maxHeight / height : 1,
-  );
-
-  if (scale >= 1) {
-    return {
-      ...processorState,
-      resize: { ...processorState.resize, enabled: false },
-    };
-  }
-
-  const currentMethod = processorState.resize.method;
-  const method = isVector
-    ? 'vector'
-    : currentMethod === 'vector'
-    ? 'lanczos3'
-    : currentMethod;
-
-  return {
-    ...processorState,
-    resize: {
-      ...processorState.resize,
-      enabled: true,
-      width: Math.max(1, Math.round(width * scale)),
-      height: Math.max(1, Math.round(height * scale)),
-      fitMethod: 'stretch',
-      method,
-    } as ProcessorState['resize'],
-  };
 }
 
 async function processEntry(
@@ -103,12 +61,7 @@ async function processEntry(
     preprocessed: decoded,
     vectorImage,
   };
-  const processorState = batchProcessorState(
-    settings,
-    decoded.width,
-    decoded.height,
-    !!vectorImage,
-  );
+  const { processorState } = settings;
   const processed = await processImage(
     signal,
     source,
@@ -125,7 +78,7 @@ async function processEntry(
 
   if (
     settings.keepOriginalIfLarger &&
-    !processorState.resize.enabled &&
+    !resizeTarget(decoded.width, decoded.height, processorState.resize) &&
     output.size >= file.size &&
     (await sniffMimeType(file)) === output.type
   ) {

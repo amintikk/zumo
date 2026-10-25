@@ -18,6 +18,13 @@ html {
   --dark-text: #2b1a0b;
   --cream: #fff7ec;
 
+  /* Editor */
+  --panel: #17120e;
+  --panel-raised: #1f1813;
+  --panel-input: #2b231c;
+  --panel-border: rgba(255, 236, 214, 0.09);
+  --panel-muted: #b3a597;
+
   --font-ui: ui-rounded, 'SF Pro Rounded', system-ui, -apple-system, 'Segoe UI',
     Roboto, 'Helvetica Neue', Arial, sans-serif;
 

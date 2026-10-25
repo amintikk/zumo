@@ -14,11 +14,8 @@ import {
   EncoderOptions,
 } from '../feature-meta';
 import Output from './Output';
-import Options from './Options';
 import ResultCache from './result-cache';
 import { cleanMerge, cleanSet } from '../util/clean-modify';
-import './custom-els/MultiPanel';
-import Results from './Results';
 import WorkerBridge from '../worker-bridge';
 import type SnackBarElement from 'shared/custom-els/snack-bar';
 import { drawableToImageData } from '../util/canvas';
@@ -29,10 +26,8 @@ import {
   compressImage,
   processSvg,
 } from './pipeline';
-import BatchBar from './BatchBar';
+import Sidebar from './Sidebar';
 import type { BatchEntry } from '../batch/expand';
-
-export type OutputType = EncoderType | 'identity';
 
 export interface SourceImage {
   file: File;
@@ -147,42 +142,74 @@ function updateDocumentTitle(loadingFileInfo: LoadingFileInfo): void {
   document.title = title;
 }
 
+const settingsKey = 'zumo:settings';
+
+const defaultSettings: SideSettings = {
+  processorState: cleanMerge(defaultProcessorState, 'resize', {
+    width: 0,
+    height: 0,
+  }),
+  encoderState: {
+    type: 'mozJPEG',
+    options: encoderMap.mozJPEG.meta.defaultOptions,
+  },
+};
+
+/** The settings used last time, if they still make sense. */
+function loadSettings(): SideSettings {
+  try {
+    const saved = JSON.parse(localStorage.getItem(settingsKey) || 'null');
+    if (
+      saved &&
+      saved.encoderState &&
+      saved.encoderState.type in encoderMap &&
+      saved.processorState
+    ) {
+      return {
+        encoderState: {
+          type: saved.encoderState.type,
+          options: {
+            ...(encoderMap[saved.encoderState.type as EncoderType].meta
+              .defaultOptions as any),
+            ...saved.encoderState.options,
+          },
+        },
+        processorState: {
+          resize: {
+            ...defaultSettings.processorState.resize,
+            ...saved.processorState.resize,
+          },
+          quantize: {
+            ...defaultSettings.processorState.quantize,
+            ...saved.processorState.quantize,
+          },
+        },
+      } as SideSettings;
+    }
+  } catch (err) {
+    console.warn('Ignoring saved settings', err);
+  }
+  return defaultSettings;
+}
+
 export default class Compress extends Component<Props, State> {
-  widthQuery = window.matchMedia('(max-width: 599px)');
+  widthQuery = window.matchMedia('(max-width: 859px)');
 
   state: State = {
     source: undefined,
     loading: false,
     preprocessorState: defaultPreprocessorState,
-    // Tasking catched side settings if available otherwise taking default settings
+    // The left side always shows the original; the right side is what the
+    // user edits, and what batches use.
     sides: [
-      localStorage.getItem('leftSideSettings')
-        ? {
-            ...JSON.parse(localStorage.getItem('leftSideSettings') as string),
-            loading: false,
-          }
-        : {
-            latestSettings: {
-              processorState: defaultProcessorState,
-              encoderState: undefined,
-            },
-            loading: false,
-          },
-      localStorage.getItem('rightSideSettings')
-        ? {
-            ...JSON.parse(localStorage.getItem('rightSideSettings') as string),
-            loading: false,
-          }
-        : {
-            latestSettings: {
-              processorState: defaultProcessorState,
-              encoderState: {
-                type: 'mozJPEG',
-                options: encoderMap.mozJPEG.meta.defaultOptions,
-              },
-            },
-            loading: false,
-          },
+      {
+        latestSettings: {
+          processorState: defaultProcessorState,
+          encoderState: undefined,
+        },
+        loading: false,
+      },
+      { latestSettings: loadSettings(), loading: false },
     ],
     mobileView: this.widthQuery.matches,
     previewIndex: 0,
@@ -211,42 +238,30 @@ export default class Compress extends Component<Props, State> {
     this.setState({ mobileView: this.widthQuery.matches });
   };
 
-  private onEncoderTypeChange = (index: 0 | 1, newType: OutputType): void => {
+  private onEncoderTypeChange = (type: EncoderType): void => {
     this.setState({
-      sides: cleanSet(
-        this.state.sides,
-        `${index}.latestSettings.encoderState`,
-        newType === 'identity'
-          ? undefined
-          : {
-              type: newType,
-              options: encoderMap[newType].meta.defaultOptions,
-            },
-      ),
+      sides: cleanSet(this.state.sides, '1.latestSettings.encoderState', {
+        type,
+        options: encoderMap[type].meta.defaultOptions,
+      }),
     });
   };
 
-  private onProcessorOptionsChange = (
-    index: 0 | 1,
-    options: ProcessorState,
-  ): void => {
+  private onProcessorOptionsChange = (options: ProcessorState): void => {
     this.setState({
       sides: cleanSet(
         this.state.sides,
-        `${index}.latestSettings.processorState`,
+        '1.latestSettings.processorState',
         options,
       ),
     });
   };
 
-  private onEncoderOptionsChange = (
-    index: 0 | 1,
-    options: EncoderOptions,
-  ): void => {
+  private onEncoderOptionsChange = (options: EncoderOptions): void => {
     this.setState({
       sides: cleanSet(
         this.state.sides,
-        `${index}.latestSettings.encoderState.options`,
+        '1.latestSettings.encoderState.options',
         options,
       ),
     });
@@ -285,6 +300,11 @@ export default class Compress extends Component<Props, State> {
         filename: this.state.source?.file.name,
       });
     }
+    const settings = this.state.sides[1].latestSettings;
+    if (settings !== prevState.sides[1].latestSettings) {
+      localStorage.setItem(settingsKey, JSON.stringify(settings));
+    }
+
     this.queueUpdateImage();
   }
 
@@ -296,159 +316,13 @@ export default class Compress extends Component<Props, State> {
     this.queueUpdateImage({ immediate: true });
   };
 
-  private onCopyToOtherClick = async (index: 0 | 1) => {
-    const otherIndex = index ? 0 : 1;
-    const oldSettings = this.state.sides[otherIndex];
-    const newSettings = { ...this.state.sides[index] };
-
-    // Create a new object URL for the new settings. This avoids both sides sharing a URL, which
-    // means it can be safely revoked without impacting the other side.
-    if (newSettings.file) {
-      newSettings.downloadUrl = URL.createObjectURL(newSettings.file);
-    }
-
-    this.setState({
-      sides: cleanSet(this.state.sides, otherIndex, newSettings),
-    });
-
-    const result = await this.props.showSnack('Ajustes copiados al otro lado', {
-      timeout: 5000,
-      actions: ['deshacer', 'cerrar'],
-    });
-
-    if (result !== 'deshacer') return;
-
-    this.setState({
-      sides: cleanSet(this.state.sides, otherIndex, oldSettings),
-    });
-  };
-  /**
-   * This function saves encodedSettings and latestSettings of
-   * particular side in browser local storage
-   * @param index : (0|1)
-   * @returns
-   */
-  private onSaveSideSettingsClick = async (index: 0 | 1) => {
-    if (index === 0) {
-      const leftSideSettings = JSON.stringify({
-        encodedSettings: this.state.sides[index].encodedSettings,
-        latestSettings: this.state.sides[index].latestSettings,
-      });
-      localStorage.setItem('leftSideSettings', leftSideSettings);
-      // Firing an event when we save side settings in localstorage
-      window.dispatchEvent(new CustomEvent('leftSideSettings'));
-      await this.props.showSnack('Ajustes del lado izquierdo guardados', {
-        timeout: 1500,
-        actions: ['cerrar'],
-      });
-      return;
-    }
-
-    if (index === 1) {
-      const rightSideSettings = JSON.stringify({
-        encodedSettings: this.state.sides[index].encodedSettings,
-        latestSettings: this.state.sides[index].latestSettings,
-      });
-      localStorage.setItem('rightSideSettings', rightSideSettings);
-      // Firing an event when we save side settings in localstorage
-      window.dispatchEvent(new CustomEvent('rightSideSettings'));
-      await this.props.showSnack('Ajustes del lado derecho guardados', {
-        timeout: 1500,
-        actions: ['cerrar'],
-      });
-      return;
-    }
-  };
-
-  /**
-   * This function sets the side state with catched localstorage
-   * value as per side index provided
-   * @param index : (0|1)
-   * @returns
-   */
-  private onImportSideSettingsClick = async (index: 0 | 1) => {
-    const leftSideSettingsString = localStorage.getItem('leftSideSettings');
-    const rightSideSettingsString = localStorage.getItem('rightSideSettings');
-
-    if (index === 0 && leftSideSettingsString) {
-      const oldLeftSideSettings = this.state.sides[index];
-      const newLeftSideSettings = {
-        ...this.state.sides[index],
-        ...JSON.parse(leftSideSettingsString),
-      };
-      this.setState({
-        sides: cleanSet(this.state.sides, index, newLeftSideSettings),
-      });
-      const result = await this.props.showSnack(
-        'Ajustes del lado izquierdo cargados',
-        {
-          timeout: 3000,
-          actions: ['deshacer', 'cerrar'],
-        },
-      );
-      if (result === 'deshacer') {
-        this.setState({
-          sides: cleanSet(this.state.sides, index, oldLeftSideSettings),
-        });
-      }
-      return;
-    }
-
-    if (index === 1 && rightSideSettingsString) {
-      const oldRightSideSettings = this.state.sides[index];
-      const newRightSideSettings = {
-        ...this.state.sides[index],
-        ...JSON.parse(rightSideSettingsString),
-      };
-      this.setState({
-        sides: cleanSet(this.state.sides, index, newRightSideSettings),
-      });
-      const result = await this.props.showSnack(
-        'Ajustes del lado derecho cargados',
-        {
-          timeout: 3000,
-          actions: ['deshacer', 'cerrar'],
-        },
-      );
-      if (result === 'deshacer') {
-        this.setState({
-          sides: cleanSet(this.state.sides, index, oldRightSideSettings),
-        });
-      }
-      return;
-    }
-  };
-
   private onPreprocessorChange = async (
     preprocessorState: PreprocessorState,
   ): Promise<void> => {
     const source = this.state.source;
     if (!source) return;
 
-    const oldRotate = this.state.preprocessorState.rotate.rotate;
-    const newRotate = preprocessorState.rotate.rotate;
-    const orientationChanged = oldRotate % 180 !== newRotate % 180;
-
-    this.setState((state) => ({
-      loading: true,
-      preprocessorState,
-      // Flip resize values if orientation has changed
-      sides: !orientationChanged
-        ? state.sides
-        : (state.sides.map((side) => {
-            const currentResizeSettings =
-              side.latestSettings.processorState.resize;
-            const resizeSettings: Partial<ProcessorState['resize']> = {
-              width: currentResizeSettings.height,
-              height: currentResizeSettings.width,
-            };
-            return cleanMerge(
-              side,
-              'latestSettings.processorState.resize',
-              resizeSettings,
-            );
-          }) as [Side, Side]),
-    }));
+    this.setState({ loading: true, preprocessorState });
   };
 
   /**
@@ -585,26 +459,6 @@ export default class Compress extends Component<Props, State> {
             this.workerBridges[0],
           );
         }
-
-        // Set default resize values
-        this.setState((currentState) => {
-          if (mainSignal.aborted) return {};
-          const sides = currentState.sides.map((side) => {
-            const resizeState: Partial<ProcessorState['resize']> = {
-              width: decoded.width,
-              height: decoded.height,
-              method: vectorImage ? 'vector' : 'lanczos3',
-              // Disable resizing, to make it clearer to the user that something changed here
-              enabled: false,
-            };
-            return cleanMerge(
-              side,
-              'latestSettings.processorState.resize',
-              resizeState,
-            );
-          }) as [Side, Side];
-          return { sides };
-        });
       } catch (err) {
         if (err instanceof Error && err.name === 'AbortError') return;
         this.props.showSnack(`No se pudo leer la imagen: ${err}`);
@@ -812,110 +666,97 @@ export default class Compress extends Component<Props, State> {
       previewIndex,
     }: State,
   ) {
-    const [leftSide, rightSide] = sides;
+    const [, side] = sides;
     const [leftImageData, rightImageData] = sides.map((i) => i.data);
-
-    const options = sides.map((side, index) => (
-      <Options
-        index={index as 0 | 1}
-        source={source}
-        mobileView={mobileView}
-        processorState={side.latestSettings.processorState}
-        encoderState={side.latestSettings.encoderState}
-        onEncoderTypeChange={this.onEncoderTypeChange}
-        onEncoderOptionsChange={this.onEncoderOptionsChange}
-        onProcessorOptionsChange={this.onProcessorOptionsChange}
-        onCopyToOtherSideClick={this.onCopyToOtherClick}
-        onSaveSideSettingsClick={this.onSaveSideSettingsClick}
-        onImportSideSettingsClick={this.onImportSideSettingsClick}
-      />
-    ));
-
-    const results = sides.map((side, index) => (
-      <Results
-        downloadUrl={side.downloadUrl}
-        imageFile={side.file}
-        source={source}
-        loading={loading || side.loading}
-        flipSide={mobileView || index === 1}
-        typeLabel={
-          side.latestSettings.encoderState
-            ? encoderMap[side.latestSettings.encoderState.type].meta.label
-            : `${side.file ? `${side.file.name}` : 'Imagen original'}`
-        }
-      />
-    ));
-
-    // For rendering, we ideally want the settings that were used to create the
-    // data, not the latest settings.
-    const leftDisplaySettings =
-      leftSide.encodedSettings || leftSide.latestSettings;
-    const rightDisplaySettings =
-      rightSide.encodedSettings || rightSide.latestSettings;
-    const leftImgContain =
-      leftDisplaySettings.processorState.resize.enabled &&
-      leftDisplaySettings.processorState.resize.fitMethod === 'contain';
-    const rightImgContain =
-      rightDisplaySettings.processorState.resize.enabled &&
-      rightDisplaySettings.processorState.resize.fitMethod === 'contain';
+    const settings = side.latestSettings;
+    const total = batch ? batch.entries.length : 0;
+    const encoderLabel = settings.encoderState
+      ? encoderMap[settings.encoderState.type].meta.label
+      : '';
 
     return (
       <div class={style.compress}>
-        <Output
-          source={source}
-          mobileView={mobileView}
-          leftCompressed={leftImageData}
-          rightCompressed={rightImageData}
-          leftImgContain={leftImgContain}
-          rightImgContain={rightImgContain}
-          preprocessorState={preprocessorState}
-          onPreprocessorChange={this.onPreprocessorChange}
-        />
-        <button class={style.back} onClick={onBack}>
-          <svg viewBox="0 0 61 53.3">
-            <title>Volver</title>
-            <path
-              class={style.backBlob}
-              d="M0 25.6c-.5-7.1 4.1-14.5 10-19.1S23.4.1 32.2 0c8.8 0 19 1.6 24.4 8s5.6 17.8 1.7 27a29.7 29.7 0 01-20.5 18c-8.4 1.5-17.3-2.6-24.5-8S.5 32.6.1 25.6z"
-            />
-            <path
-              class={style.backX}
-              d="M41.6 17.1l-2-2.1-8.3 8.2-8.2-8.2-2 2 8.2 8.3-8.3 8.2 2.1 2 8.2-8.1 8.3 8.2 2-2-8.2-8.3z"
-            />
-          </svg>
-        </button>
-        {batch && (
-          <BatchBar
-            entries={batch.entries}
-            name={batch.name}
-            previewIndex={previewIndex}
-            onPreviewChange={this.onPreviewChange}
-            settings={[leftSide.latestSettings, rightSide.latestSettings]}
+        <header class={style.topBar}>
+          <button class={style.back} onClick={onBack} title="Volver">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M20 11H7.8l5.6-5.6L12 4l-8 8 8 8 1.4-1.4L7.8 13H20v-2Z" />
+            </svg>
+          </button>
+          <span class={style.brand}>zumo</span>
+
+          {batch ? (
+            <nav class={style.previewNav}>
+              <button
+                class={style.navButton}
+                onClick={() =>
+                  this.onPreviewChange((previewIndex - 1 + total) % total)
+                }
+                title="Imagen anterior"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4-4.6-4.6z" />
+                </svg>
+              </button>
+              <span
+                class={style.previewName}
+                title={batch.entries[previewIndex].path}
+              >
+                <span class={style.previewCount}>
+                  {previewIndex + 1}/{total}
+                </span>
+                {batch.entries[previewIndex].path}
+              </span>
+              <button
+                class={style.navButton}
+                onClick={() => this.onPreviewChange((previewIndex + 1) % total)}
+                title="Imagen siguiente"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M8.6 16.6 10 18l6-6-6-6-1.4 1.4 4.6 4.6z" />
+                </svg>
+              </button>
+            </nav>
+          ) : (
+            <span class={style.fileName}>{source?.file.name}</span>
+          )}
+        </header>
+
+        <div class={style.stage}>
+          <Output
+            source={source}
             mobileView={mobileView}
-            showSnack={showSnack}
+            leftCompressed={leftImageData}
+            rightCompressed={rightImageData}
+            leftImgContain={false}
+            rightImgContain={false}
+            preprocessorState={preprocessorState}
+            onPreprocessorChange={this.onPreprocessorChange}
+            hideRotate={!!batch}
           />
-        )}
-        {mobileView ? (
-          <div class={style.options}>
-            <multi-panel class={style.multiPanel} open-one-only>
-              <div class={style.options1Theme}>{results[0]}</div>
-              <div class={style.options1Theme}>{options[0]}</div>
-              <div class={style.options2Theme}>{results[1]}</div>
-              <div class={style.options2Theme}>{options[1]}</div>
-            </multi-panel>
-          </div>
-        ) : (
-          [
-            <div class={style.options1} key="options1">
-              {options[0]}
-              {results[0]}
-            </div>,
-            <div class={style.options2} key="options2">
-              {options[1]}
-              {results[1]}
-            </div>,
-          ]
-        )}
+          <span class={`${style.stageLabel} ${style.stageLabelStart}`}>
+            Original
+          </span>
+          <span class={`${style.stageLabel} ${style.stageLabelEnd}`}>
+            {encoderLabel}
+          </span>
+          {(loading || side.loading) && <div class={style.stageLoading} />}
+        </div>
+
+        <Sidebar
+          source={source}
+          settings={settings}
+          resultFile={side.file}
+          resultData={side.data}
+          downloadUrl={side.downloadUrl}
+          loading={loading || side.loading}
+          batch={batch}
+          previewIndex={previewIndex}
+          onPreviewChange={this.onPreviewChange}
+          onEncoderTypeChange={this.onEncoderTypeChange}
+          onEncoderOptionsChange={this.onEncoderOptionsChange}
+          onProcessorOptionsChange={this.onProcessorOptionsChange}
+          showSnack={showSnack}
+        />
       </div>
     );
   }

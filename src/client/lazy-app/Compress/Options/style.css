@@ -54,7 +54,7 @@
   grid-template-columns: auto 1fr;
   gap: 1em;
 
-  border-top: 1px solid #fff4;
+  border-top: 1px solid var(--panel-border);
 
   transition-property: background-color;
   transition-duration: 250ms;
@@ -79,7 +79,7 @@
 }
 
 .options-section {
-  background: var(--off-black);
+  background: transparent;
 }
 
 .text-field {

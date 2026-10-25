@@ -30,6 +30,8 @@ interface Props {
   leftImgContain: boolean;
   rightImgContain: boolean;
   onPreprocessorChange: (newState: PreprocessorState) => void;
+  /** Rotation only affects the preview, so batches hide it */
+  hideRotate?: boolean;
 }
 
 interface State {
@@ -362,16 +364,18 @@ export default class Output extends Component<Props, State> {
             </button>
           </div>
           <div class={style.buttonGroup}>
-            <button
-              class={style.firstButton}
-              onClick={this.onRotateClick}
-              title="Girar"
-            >
-              <RotateIcon />
-            </button>
+            {!this.props.hideRotate && (
+              <button
+                class={style.firstButton}
+                onClick={this.onRotateClick}
+                title="Girar"
+              >
+                <RotateIcon />
+              </button>
+            )}
             {!isSafari && (
               <button
-                class={style.button}
+                class={this.props.hideRotate ? style.firstButton : style.button}
                 onClick={this.toggleAliasing}
                 title="Suavizado"
               >

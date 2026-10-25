@@ -14,10 +14,10 @@ servidor: el servidor solo entrega archivos estáticos.
 
 - **Lotes:** suelta un `.zip` (o selecciona varias imágenes) y se abre el editor con una de
   ellas como muestra. Ajusta formato y calidad mirando el antes y el después, pasa de una
-  imagen a otra con las flechas y pulsa **Optimizar**: se procesan todas con los ajustes del
-  lado elegido (izquierdo o derecho) y se descarga un ZIP con la misma estructura de carpetas.
+  imagen a otra con las flechas y pulsa **Optimizar**: se procesan todas con los mismos ajustes del panel y se descarga un
+  ZIP con la misma estructura de carpetas.
   - _Tamaño máximo_ (ancho × alto): cada imagen se reduce proporcionalmente hasta caber; nunca
-    se amplía.
+    se amplía. La vista previa usa exactamente lo mismo que el lote.
   - _Conservar el original si ya pesa menos_: si al recodificar en el mismo formato el archivo
     crece, se guarda el original.
   - Se ignoran los archivos que no son imágenes y la basura de los compresores
@@ -43,7 +43,7 @@ se quiera recompilarlos.
 | ------------------------------------------ | -------------------------------------------------------------------------- |
 | `src/client/lazy-app/batch/expand.ts`      | Lee ZIPs y archivos sueltos y devuelve la lista de imágenes                |
 | `src/client/lazy-app/batch/process.ts`     | Procesa el lote en paralelo y crea el ZIP de salida                        |
-| `src/client/lazy-app/Compress/BatchBar/`   | Barra del lote en el editor                                                |
+| `src/client/lazy-app/Compress/Sidebar/`    | Panel único del editor (formato, tamaño, resultado y lote)                 |
 | `src/client/lazy-app/Compress/pipeline.ts` | Decodificar / procesar / comprimir (extraído del editor para reutilizarlo) |
 | `src/shared/prerendered-app/Intro/`        | Portada                                                                    |
 
