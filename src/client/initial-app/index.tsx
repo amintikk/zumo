@@ -12,6 +12,8 @@
  */
 import { h, render } from 'preact';
 import App from './App';
+// Listen for the install prompt as early as possible
+import 'shared/install';
 
 // Scroll-reveal content is only hidden once we know JS is running
 document.documentElement.classList.remove('no-js');

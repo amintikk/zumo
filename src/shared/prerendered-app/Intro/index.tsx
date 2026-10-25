@@ -8,6 +8,7 @@ import 'shared/custom-els/snack-bar';
 import { Icon, IconName } from 'shared/icons';
 import { S, lang, setLang } from 'shared/strings';
 import { currentTheme, setTheme, Theme } from 'shared/theme';
+import { canInstall, promptInstall } from 'shared/install';
 import { reopenConsent, loadAnalytics } from 'shared/analytics';
 import PrivacyChoice from '../PrivacyChoice';
 
@@ -41,72 +42,36 @@ interface Props {
 }
 
 interface State {
-  beforeInstallEvent?: BeforeInstallPromptEvent;
   theme: Theme;
-  installed: boolean;
-  installHelp: boolean;
+  /** The browser offered to install the app */
+  installable: boolean;
 }
-
-const isIOS =
-  !__PRERENDER__ &&
-  (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
 
 export default class Intro extends Component<Props, State> {
   state: State = {
     theme: __PRERENDER__ ? 'light' : currentTheme(),
-    installed:
-      !__PRERENDER__ &&
-      (matchMedia('(display-mode: standalone)').matches ||
-        (navigator as any).standalone === true),
-    installHelp: false,
+    installable: !__PRERENDER__ && canInstall(),
   };
   private fileInput?: HTMLInputElement;
 
   componentDidMount() {
-    window.addEventListener(
-      'beforeinstallprompt',
-      this.onBeforeInstallPromptEvent,
-    );
-    window.addEventListener('appinstalled', this.onAppInstalled);
+    window.addEventListener('zumo:install', this.onInstallChange);
     window.addEventListener('zumo:theme', this.onThemeChange);
     matchMedia('(prefers-color-scheme: dark)').addListener(this.onThemeChange);
-    document.addEventListener('keydown', this.onKeyDown);
-    document.addEventListener('pointerdown', this.onPointerDown, true);
     loadAnalytics();
   }
 
   componentWillUnmount() {
-    window.removeEventListener(
-      'beforeinstallprompt',
-      this.onBeforeInstallPromptEvent,
-    );
-    window.removeEventListener('appinstalled', this.onAppInstalled);
+    window.removeEventListener('zumo:install', this.onInstallChange);
     window.removeEventListener('zumo:theme', this.onThemeChange);
     matchMedia('(prefers-color-scheme: dark)').removeListener(
       this.onThemeChange,
     );
-    document.removeEventListener('keydown', this.onKeyDown);
-    document.removeEventListener('pointerdown', this.onPointerDown, true);
   }
 
   private onThemeChange = () => this.setState({ theme: currentTheme() });
 
-  private onKeyDown = (event: KeyboardEvent) => {
-    if (event.key === 'Escape' && this.state.installHelp) {
-      this.setState({ installHelp: false });
-    }
-  };
-
-  private onPointerDown = (event: Event) => {
-    if (!this.state.installHelp) return;
-    const wrap = (this.base as HTMLElement).querySelector(
-      `.${style.installWrap}`,
-    );
-    if (wrap && !wrap.contains(event.target as Node)) {
-      this.setState({ installHelp: false });
-    }
-  };
+  private onInstallChange = () => this.setState({ installable: canInstall() });
 
   private onThemeClick = (event: MouseEvent) => {
     const button = (event.currentTarget as HTMLElement).getBoundingClientRect();
@@ -132,31 +97,12 @@ export default class Intro extends Component<Props, State> {
     this.fileInput!.click();
   };
 
-  private onBeforeInstallPromptEvent = (event: BeforeInstallPromptEvent) => {
-    event.preventDefault();
-    this.setState({ beforeInstallEvent: event });
-  };
-
   private onInstallClick = () => {
-    const { beforeInstallEvent, installHelp } = this.state;
-    if (beforeInstallEvent) {
-      beforeInstallEvent.prompt();
-      return;
-    }
-    // Safari and Firefox don't offer a prompt: explain how instead
-    this.setState({ installHelp: !installHelp });
-  };
-
-  private onAppInstalled = () => {
-    this.setState({
-      beforeInstallEvent: undefined,
-      installed: true,
-      installHelp: false,
-    });
+    promptInstall();
   };
 
   private renderActions() {
-    const { theme, installed, installHelp } = this.state;
+    const { theme, installable } = this.state;
     const themeLabel = theme === 'dark' ? S.header.toLight : S.header.toDark;
     return (
       <div class={style.actions}>
@@ -176,40 +122,17 @@ export default class Intro extends Component<Props, State> {
           </span>
         </button>
 
-        {!installed && (
-          <div class={style.installWrap}>
-            <button
-              class={`icon-btn has-tip ${style.action}`}
-              onClick={this.onInstallClick}
-              aria-label={S.header.install}
-              aria-expanded={installHelp}
-              disabled={__PRERENDER__}
-            >
-              <Icon name="monitor-down" size={18} />
-              <span class="tip" aria-hidden="true">
-                {S.header.install}
-              </span>
-            </button>
-            {installHelp && (
-              <div class={style.installSheet} role="dialog">
-                <span class="tile t-orange">
-                  <Icon name="monitor-down" size={22} />
-                </span>
-                <h2 class={style.sheetTitle}>{S.install.title}</h2>
-                <p>{S.install.text}</p>
-                <p class={style.sheetStep}>
-                  {isIOS && <Icon name="share" size={16} />}
-                  {isIOS ? S.install.ios : S.install.other}
-                </p>
-                <button
-                  class="btn btn-tinted btn-sm btn-block"
-                  onClick={() => this.setState({ installHelp: false })}
-                >
-                  {S.install.ok}
-                </button>
-              </div>
-            )}
-          </div>
+        {installable && (
+          <button
+            class={`icon-btn has-tip ${style.action} ${style.installAction}`}
+            onClick={this.onInstallClick}
+            aria-label={S.header.install}
+          >
+            <Icon name="monitor-down" size={18} />
+            <span class="tip" aria-hidden="true">
+              {S.header.install}
+            </span>
+          </button>
         )}
 
         <button

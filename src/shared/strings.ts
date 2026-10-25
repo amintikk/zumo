@@ -26,15 +26,6 @@ const es = {
     current: 'ES',
   },
 
-  install: {
-    title: 'Instala zumo',
-    text: 'Tendrás zumo como una app más y funcionará sin conexión.',
-    ios: 'En Safari, pulsa Compartir y luego «Añadir a pantalla de inicio».',
-    other:
-      'Abre el menú del navegador y elige «Instalar zumo» o «Añadir a pantalla de inicio».',
-    ok: 'Entendido',
-  },
-
   hero: {
     title: 'Tus fotos, mucho<br>más ligeras.',
     lead: 'Suelta un ZIP o un montón de imágenes. Elige la calidad viendo el antes y el después, y descárgalas todas de una vez.',
@@ -287,15 +278,6 @@ const en: Strings = {
     language: 'Español',
     languageLabel: 'Switch to Spanish',
     current: 'EN',
-  },
-
-  install: {
-    title: 'Install zumo',
-    text: 'It works like any other app, even offline.',
-    ios: 'In Safari, tap Share and then “Add to Home Screen”.',
-    other:
-      'Open your browser menu and choose “Install zumo” or “Add to Home Screen”.',
-    ok: 'Got it',
   },
 
   hero: {
