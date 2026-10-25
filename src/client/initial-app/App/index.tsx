@@ -10,7 +10,8 @@ import 'add-css:./style.css';
 import 'file-drop-element';
 import 'shared/custom-els/snack-bar';
 import Intro from 'shared/prerendered-app/Intro';
-import 'shared/custom-els/loading-spinner';
+import { Icon } from 'shared/icons';
+import { S } from 'shared/strings';
 
 const ROUTE_EDITOR = '/editor';
 
@@ -55,7 +56,7 @@ export default class App extends Component<Props, State> {
         this.setState({ Compress: module.default });
       })
       .catch(() => {
-        this.showSnack('No se pudo cargar la app');
+        this.showSnack(S.snack.loadError);
       });
 
     swBridgePromise.then(async ({ offliner, getSharedImage }) => {
@@ -68,10 +69,8 @@ export default class App extends Component<Props, State> {
       this.setState({ file, batch: undefined, awaitingShareTarget: false });
     });
 
-    // Since iOS 10, Apple tries to prevent disabling pinch-zoom. This is great in theory, but
-    // really breaks things here, as you can easily end up zooming the UI when you mean to
-    // zoom the image. Once you've done this, it's really difficult to undo. Anyway, this seems to
-    // prevent it.
+    // iOS lets people pinch-zoom the whole UI, which gets in the way of
+    // zooming the image. This prevents it.
     document.body.addEventListener('gesturestart', (event: any) => {
       event.preventDefault();
     });
@@ -97,7 +96,7 @@ export default class App extends Component<Props, State> {
     try {
       const { entries, name, skipped } = await expandFiles(files);
       if (entries.length === 0) {
-        this.showSnack('No se encontraron imágenes');
+        this.showSnack(S.snack.noImages);
         return;
       }
       this.openEditor();
@@ -106,18 +105,11 @@ export default class App extends Component<Props, State> {
         batch: entries.length > 1 ? { entries, name } : undefined,
       });
       if (skipped) {
-        this.showSnack(
-          `Se ${
-            skipped === 1
-              ? 'ha ignorado 1 archivo'
-              : `han ignorado ${skipped} archivos`
-          } que no ${skipped === 1 ? 'es imagen' : 'son imágenes'}`,
-          { timeout: 4000, actions: ['cerrar'] },
-        );
+        this.showSnack(S.snack.skipped(skipped), { timeout: 4000 });
       }
     } catch (err) {
       console.error(err);
-      this.showSnack('No se pudo abrir el ZIP');
+      this.showSnack(S.snack.zipError);
     } finally {
       this.setState({ expanding: false });
     }
@@ -155,27 +147,48 @@ export default class App extends Component<Props, State> {
       awaitingShareTarget,
     }: State,
   ) {
-    const showSpinner =
-      awaitingShareTarget || expanding || (isEditorOpen && !Compress);
+    const editorReady = isEditorOpen && Compress && file;
+    const busy =
+      awaitingShareTarget || expanding || (isEditorOpen && !editorReady);
 
     return (
       <div class={style.app}>
         <file-drop multiple onfiledrop={this.onFileDrop} class={style.drop}>
-          {showSpinner ? (
-            <loading-spinner class={style.appLoader} />
-          ) : isEditorOpen ? (
-            Compress && (
-              <Compress
-                file={file!}
-                batch={batch}
-                showSnack={this.showSnack}
-                onBack={back}
-              />
-            )
+          {editorReady && Compress ? (
+            <Compress
+              file={file!}
+              batch={batch}
+              showSnack={this.showSnack}
+              onBack={back}
+            />
           ) : (
-            <Intro onFiles={this.openFiles} showSnack={this.showSnack} />
+            !isEditorOpen && (
+              <Intro onFiles={this.openFiles} showSnack={this.showSnack} />
+            )
           )}
-          <snack-bar ref={linkRef(this, 'snackbar')} />
+
+          {busy && (
+            <div class={style.busy} role="status">
+              <div class={`${style.busyCard} glass`}>
+                <span class="spinner" />
+                {expanding ? S.app.opening : S.app.loading}
+              </div>
+            </div>
+          )}
+
+          <div class={style.dropHint} aria-hidden="true">
+            <div class={`${style.dropHintCard} glass`}>
+              <span class="tile t-orange">
+                <Icon name="upload" size={24} />
+              </span>
+              {S.drop.dragging}
+            </div>
+          </div>
+
+          <snack-bar
+            ref={linkRef(this, 'snackbar')}
+            data-placement={isEditorOpen ? 'top' : 'bottom'}
+          />
         </file-drop>
       </div>
     );

@@ -1,6 +1,7 @@
 import { EncodeOptions, UVMode, Csp } from '../shared/meta';
 import { defaultOptions } from '../shared/meta';
 import type WorkerBridge from 'client/lazy-app/worker-bridge';
+import { S } from 'shared/strings';
 import { h, Component } from 'preact';
 import { preventDefault, shallowEqual } from 'client/lazy-app/util';
 import * as style from 'client/lazy-app/Compress/Options/style.css';
@@ -156,7 +157,7 @@ export class Options extends Component<Props, State> {
     return (
       <form class={style.optionsSection} onSubmit={preventDefault}>
         <label class={style.optionToggle}>
-          Lossless
+          {S.codec.lossless}
           <Checkbox
             checked={lossless}
             onChange={this._inputChange('lossless', 'boolean')}
@@ -172,7 +173,7 @@ export class Options extends Component<Props, State> {
                 value={slightLoss}
                 onInput={this._inputChange('slightLoss', 'number')}
               >
-                Slight loss:
+                {S.codec.slightLoss}
               </Range>
             </div>
           )}
@@ -188,11 +189,11 @@ export class Options extends Component<Props, State> {
                   value={quality}
                   onInput={this._inputChange('quality', 'number')}
                 >
-                  Calidad:
+                  {S.editor.quality}
                 </Range>
               </div>
               <label class={style.optionToggle}>
-                Separate alpha quality
+                {S.codec.separateAlpha}
                 <Checkbox
                   checked={separateAlpha}
                   onChange={this._inputChange('separateAlpha', 'boolean')}
@@ -208,7 +209,7 @@ export class Options extends Component<Props, State> {
                       value={alphaQuality}
                       onInput={this._inputChange('alphaQuality', 'number')}
                     >
-                      Calidad del alfa:
+                      {S.codec.alphaQuality}
                     </Range>
                   </div>
                 )}
@@ -218,7 +219,7 @@ export class Options extends Component<Props, State> {
                   checked={showAdvanced}
                   onChange={linkState(this, 'showAdvanced')}
                 />
-                Ajustes avanzados
+                {S.editor.advanced}
               </label>
               <Expander>
                 {showAdvanced && (
@@ -231,7 +232,7 @@ export class Options extends Component<Props, State> {
                         value={passes}
                         onInput={this._inputChange('passes', 'number')}
                       >
-                        Passes:
+                        {S.codec.passes}
                       </Range>
                     </div>
                     <div class={style.optionOneCell}>
@@ -242,7 +243,7 @@ export class Options extends Component<Props, State> {
                         value={sns}
                         onInput={this._inputChange('sns', 'number')}
                       >
-                        Spatial noise shaping:
+                        {S.codec.sns}
                       </Range>
                     </div>
                     <div class={style.optionOneCell}>
@@ -253,23 +254,23 @@ export class Options extends Component<Props, State> {
                         value={errorDiffusion}
                         onInput={this._inputChange('errorDiffusion', 'number')}
                       >
-                        Error diffusion:
+                        {S.codec.errorDiffusion}
                       </Range>
                     </div>
                     <label class={style.optionTextFirst}>
-                      Subsample chroma:
+                      {S.codec.subsample}
                       <Select
                         value={uvMode}
                         onInput={this._inputChange('uvMode', 'number')}
                       >
-                        <option value={UVMode.UVModeAuto}>Auto</option>
-                        <option value={UVMode.UVModeAdapt}>Vary</option>
-                        <option value={UVMode.UVMode420}>Half</option>
-                        <option value={UVMode.UVMode444}>Off</option>
+                        <option value={UVMode.UVModeAuto}>{S.codec.auto}</option>
+                        <option value={UVMode.UVModeAdapt}>{S.codec.vary}</option>
+                        <option value={UVMode.UVMode420}>{S.codec.half}</option>
+                        <option value={UVMode.UVMode444}>{S.codec.off}</option>
                       </Select>
                     </label>
                     <label class={style.optionTextFirst}>
-                      Color space:
+                      {S.codec.colorSpace}
                       <Select
                         value={colorSpace}
                         onInput={this._inputChange('colorSpace', 'number')}
@@ -280,7 +281,7 @@ export class Options extends Component<Props, State> {
                       </Select>
                     </label>
                     <label class={style.optionToggle}>
-                      Random matrix
+                      {S.codec.randomMatrix}
                       <Checkbox
                         checked={useRandomMatrix}
                         onChange={this._inputChange(
@@ -303,7 +304,7 @@ export class Options extends Component<Props, State> {
             value={effort}
             onInput={this._inputChange('effort', 'number')}
           >
-            Effort:
+            {S.codec.effort}
           </Range>
         </div>
       </form>

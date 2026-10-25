@@ -30,6 +30,19 @@ servidor: el servidor solo entrega archivos estáticos.
 - **Una imagen:** el editor de comparación de Squoosh, con MozJPEG, WebP, AVIF, JPEG XL,
   OxiPNG, QOI, WebP2, redimensionado y reducción de paleta.
 
+## Diseño
+
+La interfaz sigue un sistema de estilo tipo Apple: luz ambiente y superficies de cristal,
+colores del sistema con el naranja de zumo como `--tint`, modo claro y oscuro, iconos de
+[Lucide](https://lucide.dev) y movimiento con curvas de muelle (respetando «reducir movimiento»).
+
+- `src/shared/prerendered-app/tokens.css` — variables de diseño (colores, tipografía, radios, movimiento).
+- `src/shared/prerendered-app/ui.css` — componentes compartidos: cristal, botones, interruptor,
+  listas agrupadas, pastillas, campos, spinner, luz ambiente, aparición al hacer scroll.
+- `src/shared/icons/` — iconos de Lucide como componente `Icon` (añadir: `tools/gen-icons.mjs`).
+- `src/shared/strings.ts` — todos los textos, en un diccionario por idioma.
+- La analítica solo se carga si se acepta en el aviso de privacidad (`src/shared/analytics.ts`).
+
 ## Desarrollo
 
 ```sh
@@ -51,6 +64,7 @@ se quiera recompilarlos.
 | `src/client/lazy-app/Compress/pipeline.ts` | Decodificar / procesar / comprimir (extraído del editor para reutilizarlo) |
 | `src/features/decoders/heic/`, `tiff/`     | Decodificadores de HEIC (libheif) y TIFF (UTIF), cargados bajo demanda     |
 | `src/shared/prerendered-app/Intro/`        | Portada                                                                    |
+| `src/static-build/pages/privacy/`          | Página de privacidad (`/privacidad/`)                                      |
 
 ## Despliegue
 

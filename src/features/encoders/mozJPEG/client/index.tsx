@@ -1,5 +1,6 @@
 import { EncodeOptions, MozJpegColorSpace } from '../shared/meta';
 import type WorkerBridge from 'client/lazy-app/worker-bridge';
+import { S } from 'shared/strings';
 import { h, Component } from 'preact';
 import {
   inputFieldChecked,
@@ -114,7 +115,7 @@ export class Options extends Component<Props, State> {
             value={options.quality}
             onInput={this.onChange}
           >
-            Calidad:
+            {S.editor.quality}
           </Range>
         </div>
         <label class={style.optionReveal}>
@@ -122,19 +123,19 @@ export class Options extends Component<Props, State> {
             checked={showAdvanced}
             onChange={linkState(this, 'showAdvanced')}
           />
-          Ajustes avanzados
+          {S.editor.advanced}
         </label>
         <Expander>
           {showAdvanced ? (
             <div>
               <label class={style.optionTextFirst}>
-                Channels:
+                {S.codec.channels}
                 <Select
                   name="color_space"
                   value={options.color_space}
                   onChange={this.onChange}
                 >
-                  <option value={MozJpegColorSpace.GRAYSCALE}>Grayscale</option>
+                  <option value={MozJpegColorSpace.GRAYSCALE}>{S.codec.grayscale}</option>
                   <option value={MozJpegColorSpace.RGB}>RGB</option>
                   <option value={MozJpegColorSpace.YCbCr}>YCbCr</option>
                 </Select>
@@ -143,7 +144,7 @@ export class Options extends Component<Props, State> {
                 {options.color_space === MozJpegColorSpace.YCbCr ? (
                   <div>
                     <label class={style.optionToggle}>
-                      Auto subsample chroma
+                      {S.codec.autoSubsample}
                       <Checkbox
                         name="auto_subsample"
                         checked={options.auto_subsample}
@@ -160,13 +161,13 @@ export class Options extends Component<Props, State> {
                             value={options.chroma_subsample}
                             onInput={this.onChange}
                           >
-                            Subsample chroma by:
+                            {S.codec.subsampleBy}
                           </Range>
                         </div>
                       )}
                     </Expander>
                     <label class={style.optionToggle}>
-                      Separate chroma quality
+                      {S.codec.separateChroma}
                       <Checkbox
                         name="separate_chroma_quality"
                         checked={options.separate_chroma_quality}
@@ -183,7 +184,7 @@ export class Options extends Component<Props, State> {
                             value={options.chroma_quality}
                             onInput={this.onChange}
                           >
-                            Chroma quality:
+                            {S.codec.chromaQuality}
                           </Range>
                         </div>
                       ) : null}
@@ -192,7 +193,7 @@ export class Options extends Component<Props, State> {
                 ) : null}
               </Expander>
               <label class={style.optionToggle}>
-                Pointless spec compliance
+                {S.codec.baseline}
                 <Checkbox
                   name="baseline"
                   checked={options.baseline}
@@ -202,7 +203,7 @@ export class Options extends Component<Props, State> {
               <Expander>
                 {options.baseline ? null : (
                   <label class={style.optionToggle}>
-                    Progressive rendering
+                    {S.codec.progressive}
                     <Checkbox
                       name="progressive"
                       checked={options.progressive}
@@ -214,7 +215,7 @@ export class Options extends Component<Props, State> {
               <Expander>
                 {options.baseline ? (
                   <label class={style.optionToggle}>
-                    Optimize Huffman table
+                    {S.codec.huffman}
                     <Checkbox
                       name="optimize_coding"
                       checked={options.optimize_coding}
@@ -231,18 +232,18 @@ export class Options extends Component<Props, State> {
                   value={options.smoothing}
                   onInput={this.onChange}
                 >
-                  Smoothing:
+                  {S.codec.smoothing}
                 </Range>
               </div>
               <label class={style.optionTextFirst}>
-                Quantization:
+                {S.codec.quantization}
                 <Select
                   name="quant_table"
                   value={options.quant_table}
                   onChange={this.onChange}
                 >
                   <option value="0">JPEG Annex K</option>
-                  <option value="1">Flat</option>
+                  <option value="1">{S.codec.flat}</option>
                   <option value="2">MSSIM-tuned Kodak</option>
                   <option value="3">ImageMagick</option>
                   <option value="4">PSNR-HVS-M-tuned Kodak</option>
@@ -253,7 +254,7 @@ export class Options extends Component<Props, State> {
                 </Select>
               </label>
               <label class={style.optionToggle}>
-                Trellis multipass
+                {S.codec.trellisMultipass}
                 <Checkbox
                   name="trellis_multipass"
                   checked={options.trellis_multipass}
@@ -263,7 +264,7 @@ export class Options extends Component<Props, State> {
               <Expander>
                 {options.trellis_multipass ? (
                   <label class={style.optionToggle}>
-                    Optimize zero block runs
+                    {S.codec.zeroBlocks}
                     <Checkbox
                       name="trellis_opt_zero"
                       checked={options.trellis_opt_zero}
@@ -273,7 +274,7 @@ export class Options extends Component<Props, State> {
                 ) : null}
               </Expander>
               <label class={style.optionToggle}>
-                Optimize after trellis quantization
+                {S.codec.trellisTable}
                 <Checkbox
                   name="trellis_opt_table"
                   checked={options.trellis_opt_table}
@@ -288,7 +289,7 @@ export class Options extends Component<Props, State> {
                   value={options.trellis_loops}
                   onInput={this.onChange}
                 >
-                  Trellis quantization passes:
+                  {S.codec.trellisPasses}
                 </Range>
               </div>
             </div>

@@ -1,4 +1,7 @@
 .children-exiting {
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out);
+
   & > * {
     pointer-events: none;
   }

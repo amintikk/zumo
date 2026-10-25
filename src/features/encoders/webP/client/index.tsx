@@ -1,5 +1,6 @@
 import { EncodeOptions } from '../shared/meta';
 import type WorkerBridge from 'client/lazy-app/worker-bridge';
+import { S } from 'shared/strings';
 import { h, Component } from 'preact';
 import {
   inputFieldCheckedAsNumber,
@@ -166,7 +167,7 @@ export class Options extends Component<Props, State> {
             value={determineLosslessQuality(options.quality, options.method)}
             onInput={this.onChange}
           >
-            Effort:
+            {S.codec.effort}
           </Range>
         </div>
         <div class={style.optionOneCell}>
@@ -177,11 +178,11 @@ export class Options extends Component<Props, State> {
             value={'' + (100 - options.near_lossless)}
             onInput={this.onChange}
           >
-            Slight loss:
+            {S.codec.slightLoss}
           </Range>
         </div>
         <label class={style.optionToggle}>
-          Discrete tone image
+          {S.codec.discreteTone}
           {/*
             Although there are 3 different kinds of image hint, webp only
             seems to do something with the 'graph' type, and I don't really
@@ -210,7 +211,7 @@ export class Options extends Component<Props, State> {
             value={options.method}
             onInput={this.onChange}
           >
-            Effort:
+            {S.codec.effort}
           </Range>
         </div>
         <div class={style.optionOneCell}>
@@ -222,7 +223,7 @@ export class Options extends Component<Props, State> {
             value={options.quality}
             onInput={this.onChange}
           >
-            Calidad:
+            {S.editor.quality}
           </Range>
         </div>
         <label class={style.optionReveal}>
@@ -230,13 +231,13 @@ export class Options extends Component<Props, State> {
             checked={showAdvanced}
             onChange={linkState(this, 'showAdvanced')}
           />
-          Ajustes avanzados
+          {S.editor.advanced}
         </label>
         <Expander>
           {showAdvanced ? (
             <div>
               <label class={style.optionToggle}>
-                Compress alpha
+                {S.codec.compressAlpha}
                 <Checkbox
                   name="alpha_compression"
                   checked={!!options.alpha_compression}
@@ -251,7 +252,7 @@ export class Options extends Component<Props, State> {
                   value={options.alpha_quality}
                   onInput={this.onChange}
                 >
-                  Calidad del alfa:
+                  {S.codec.alphaQuality}
                 </Range>
               </div>
               <div class={style.optionOneCell}>
@@ -262,11 +263,11 @@ export class Options extends Component<Props, State> {
                   value={options.alpha_filtering}
                   onInput={this.onChange}
                 >
-                  Alpha filter quality:
+                  {S.codec.alphaFilter}
                 </Range>
               </div>
               <label class={style.optionToggle}>
-                Auto adjust filter strength
+                {S.codec.autoFilter}
                 <Checkbox
                   name="autofilter"
                   checked={!!options.autofilter}
@@ -283,13 +284,13 @@ export class Options extends Component<Props, State> {
                       value={options.filter_strength}
                       onInput={this.onChange}
                     >
-                      Filter strength:
+                      {S.codec.filterStrength}
                     </Range>
                   </div>
                 )}
               </Expander>
               <label class={style.optionToggle}>
-                Strong filter
+                {S.codec.strongFilter}
                 <Checkbox
                   name="filter_type"
                   checked={!!options.filter_type}
@@ -304,7 +305,7 @@ export class Options extends Component<Props, State> {
                   value={7 - options.filter_sharpness}
                   onInput={this.onChange}
                 >
-                  Filter sharpness:
+                  {S.codec.filterSharpness}
                 </Range>
               </div>
               <label class={style.optionToggle}>
@@ -323,7 +324,7 @@ export class Options extends Component<Props, State> {
                   value={options.pass}
                   onInput={this.onChange}
                 >
-                  Passes:
+                  {S.codec.passes}
                 </Range>
               </div>
               <div class={style.optionOneCell}>
@@ -334,19 +335,19 @@ export class Options extends Component<Props, State> {
                   value={options.sns_strength}
                   onInput={this.onChange}
                 >
-                  Spatial noise shaping:
+                  {S.codec.sns}
                 </Range>
               </div>
               <label class={style.optionTextFirst}>
-                Preprocess:
+                {S.codec.preprocess}
                 <Select
                   name="preprocessing"
                   value={options.preprocessing}
                   onChange={this.onChange}
                 >
-                  <option value="0">None</option>
-                  <option value="1">Segment smooth</option>
-                  <option value="2">Pseudo-random dithering</option>
+                  <option value="0">{S.codec.none}</option>
+                  <option value="1">{S.codec.segmentSmooth}</option>
+                  <option value="2">{S.codec.randomDither}</option>
                 </Select>
               </label>
               <div class={style.optionOneCell}>
@@ -357,7 +358,7 @@ export class Options extends Component<Props, State> {
                   value={options.segments}
                   onInput={this.onChange}
                 >
-                  Segments:
+                  {S.codec.segments}
                 </Range>
               </div>
               <div class={style.optionOneCell}>
@@ -368,7 +369,7 @@ export class Options extends Component<Props, State> {
                   value={options.partitions}
                   onInput={this.onChange}
                 >
-                  Partitions:
+                  {S.codec.partitions}
                 </Range>
               </div>
             </div>
@@ -384,7 +385,7 @@ export class Options extends Component<Props, State> {
     return (
       <form class={style.optionsSection} onSubmit={preventDefault}>
         <label class={style.optionToggle}>
-          Lossless
+          {S.codec.lossless}
           <Checkbox
             name="lossless"
             checked={!!options.lossless}
@@ -395,7 +396,7 @@ export class Options extends Component<Props, State> {
           ? this._losslessSpecificOptions(options)
           : this._lossySpecificOptions(options)}
         <label class={style.optionToggle}>
-          Preserve transparent data
+          {S.codec.exact}
           <Checkbox
             name="exact"
             checked={!!options.exact}

@@ -14,6 +14,8 @@ import { h } from 'preact';
 
 import { renderPage, writeFiles, siteOrigin } from './utils';
 import IndexPage from './pages/index';
+import PrivacyPage from './pages/privacy';
+import { S } from 'shared/strings';
 import * as iconLargeMaskable from 'img-url:static-build/assets/icon-large-maskable.png';
 import * as iconLarge from 'img-url:static-build/assets/icon-large.png';
 import dedent from 'dedent';
@@ -32,14 +34,15 @@ interface Output {
 
 const toOutput: Output = {
   'index.html': renderPage(<IndexPage />),
+  'privacidad/index.html': renderPage(<PrivacyPage />),
   'manifest.json': JSON.stringify({
     name: 'zumo · Optimizador de imágenes',
     short_name: 'zumo',
     start_url: '/?utm_medium=PWA&utm_source=launcher',
     display: 'standalone',
     orientation: 'any',
-    background_color: '#fff7ec',
-    theme_color: '#ff7a1a',
+    background_color: '#f2f2f7',
+    theme_color: '#f2f2f7',
     icons: [
       {
         src: iconLarge.default,
@@ -86,6 +89,11 @@ const toOutput: Output = {
         <loc>${siteOrigin}/</loc>
         <changefreq>monthly</changefreq>
         <priority>1.0</priority>
+      </url>
+      <url>
+        <loc>${siteOrigin}/privacidad/</loc>
+        <changefreq>yearly</changefreq>
+        <priority>0.3</priority>
       </url>
     </urlset>
   `,

@@ -6,15 +6,8 @@ import './custom-els/TwoUp';
 import * as style from './style.css';
 import 'add-css:./style.css';
 import { shallowEqual, isSafari } from '../../util';
-import {
-  ToggleAliasingIcon,
-  ToggleAliasingActiveIcon,
-  ToggleBackgroundIcon,
-  AddIcon,
-  RemoveIcon,
-  ToggleBackgroundActiveIcon,
-  RotateIcon,
-} from '../../icons';
+import { Icon } from 'shared/icons';
+import { S } from 'shared/strings';
 import { twoUpHandle } from './custom-els/TwoUp/styles.css';
 import type { PreprocessorState } from '../../feature-meta';
 import { cleanSet } from '../../util/clean-modify';
@@ -334,9 +327,14 @@ export default class Output extends Component<Props, State> {
           </two-up>
         </div>
         <div class={style.controls}>
-          <div class={style.buttonGroup}>
-            <button class={style.firstButton} onClick={this.zoomOut}>
-              <RemoveIcon />
+          <div class={`${style.toolbar} glass`}>
+            <button
+              class={style.tool}
+              onClick={this.zoomOut}
+              title={S.editor.zoomOut}
+              aria-label={S.editor.zoomOut}
+            >
+              <Icon name="minus" size={17} />
             </button>
             {editingScale ? (
               <input
@@ -354,48 +352,51 @@ export default class Output extends Component<Props, State> {
               <span
                 class={style.zoom}
                 tabIndex={0}
+                role="button"
                 onFocus={this.onScaleValueFocus}
               >
-                <span class={style.zoomValue}>{Math.round(scale * 100)}</span>%
+                {Math.round(scale * 100)}
+                <span class={style.unit}>%</span>
               </span>
             )}
-            <button class={style.lastButton} onClick={this.zoomIn}>
-              <AddIcon />
+            <button
+              class={style.tool}
+              onClick={this.zoomIn}
+              title={S.editor.zoomIn}
+              aria-label={S.editor.zoomIn}
+            >
+              <Icon name="plus" size={17} />
             </button>
-          </div>
-          <div class={style.buttonGroup}>
+            <span class={style.divider} />
             {!this.props.hideRotate && (
               <button
-                class={style.firstButton}
+                class={style.tool}
                 onClick={this.onRotateClick}
-                title="Girar"
+                title={S.editor.rotate}
+                aria-label={S.editor.rotate}
               >
-                <RotateIcon />
+                <Icon name="rotate-cw" size={17} />
               </button>
             )}
             {!isSafari && (
               <button
-                class={this.props.hideRotate ? style.firstButton : style.button}
+                class={`${style.tool} ${aliasing ? style.toolOn : ''}`}
                 onClick={this.toggleAliasing}
-                title="Suavizado"
+                title={S.editor.smoothing}
+                aria-label={S.editor.smoothing}
+                aria-pressed={aliasing}
               >
-                {aliasing ? (
-                  <ToggleAliasingActiveIcon />
-                ) : (
-                  <ToggleAliasingIcon />
-                )}
+                <Icon name="grid" size={17} />
               </button>
             )}
             <button
-              class={style.lastButton}
+              class={`${style.tool} ${altBackground ? style.toolOn : ''}`}
               onClick={this.toggleBackground}
-              title="Fondo"
+              title={S.editor.background}
+              aria-label={S.editor.background}
+              aria-pressed={altBackground}
             >
-              {altBackground ? (
-                <ToggleBackgroundActiveIcon />
-              ) : (
-                <ToggleBackgroundIcon />
-              )}
+              <Icon name="contrast" size={17} />
             </button>
           </div>
         </div>

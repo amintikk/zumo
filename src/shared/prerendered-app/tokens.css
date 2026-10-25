@@ -1,0 +1,139 @@
+/* Design tokens. Brand colour lives in --tint (and the ambient blobs/logo). */
+html {
+  color-scheme: light dark;
+
+  /* Type: SF Pro where the OS has it, Inter elsewhere */
+  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter Variable',
+    'Segoe UI Variable Text', system-ui, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display',
+    'Inter Variable', 'Segoe UI Variable Display', system-ui, sans-serif;
+  --font-rounded: ui-rounded, 'SF Pro Rounded', -apple-system,
+    BlinkMacSystemFont, 'Inter Variable', system-ui, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, monospace;
+
+  --title1: 700 24px/30px var(--font-display);
+  --title2: 700 20px/25px var(--font-display);
+  --title3: 600 17px/22px var(--font-display);
+  --headline: 600 14px/19px var(--font);
+  --body: 400 14px/19px var(--font);
+  --callout: 400 13px/18px var(--font);
+  --footnote: 400 12px/16px var(--font);
+  --caption: 400 11px/13px var(--font);
+  --track-display: -0.022em;
+  --track-text: -0.008em;
+
+  /* System colors (light) */
+  --blue: #007aff;
+  --green: #34c759;
+  --red: #ff3b30;
+  --orange: #ff9500;
+  --yellow: #ffcc00;
+  --indigo: #5856d6;
+  --teal: #30b0c7;
+  --pink: #ff2d55;
+  --purple: #af52de;
+  --gray: #8e8e93;
+
+  /* Brand: zumo orange */
+  --brand: #f26a10;
+  --brand-light: #ff9a3c;
+  --brand-deep: #d9480f;
+
+  /* Text hierarchy */
+  --label: #000;
+  --label-2: rgba(60, 60, 67, 0.6);
+  --label-3: rgba(60, 60, 67, 0.3);
+  --label-4: rgba(60, 60, 67, 0.18);
+
+  /* Control fills */
+  --fill: rgba(120, 120, 128, 0.2);
+  --fill-2: rgba(120, 120, 128, 0.16);
+  --fill-3: rgba(118, 118, 128, 0.12);
+  --fill-4: rgba(116, 116, 128, 0.08);
+
+  /* Backgrounds */
+  --bg: #f2f2f7;
+  --bg-2: #ffffff;
+  --separator: rgba(60, 60, 67, 0.29);
+
+  /* Glass */
+  --glass: rgba(255, 255, 255, 0.58);
+  --glass-strong: rgba(255, 255, 255, 0.74);
+  --glass-edge: rgba(255, 255, 255, 0.65);
+  --glass-line: rgba(60, 60, 67, 0.14);
+  --glass-blur: saturate(190%) blur(26px);
+  --glass-shadow: 0 1px 1px rgba(0, 0, 0, 0.03),
+    0 8px 28px rgba(120, 60, 20, 0.08);
+  --shadow-pop: 0 10px 40px rgba(0, 0, 0, 0.18), 0 2px 6px rgba(0, 0, 0, 0.08);
+
+  /* Shape */
+  --radius-s: 8px;
+  --radius-m: 10px;
+  --radius-l: 14px;
+  --radius-xl: 20px;
+  --radius: 22px;
+
+  /* Motion */
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur: 380ms;
+  --dur-fast: 180ms;
+
+  /* Meaning */
+  --tint: var(--brand);
+  --good: var(--green);
+  --bad: var(--red);
+  --warn: var(--orange);
+
+  --ink-btn: #1d1d1f;
+  --ink-btn-text: #fff;
+
+  /* Image viewer backdrop */
+  --canvas: #e9e9ee;
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    --blue: #0a84ff;
+    --green: #30d158;
+    --red: #ff453a;
+    --orange: #ff9f0a;
+    --yellow: #ffd60a;
+    --indigo: #5e5ce6;
+    --teal: #40c8e0;
+    --pink: #ff375f;
+    --purple: #bf5af2;
+
+    --brand: #ff7d2e;
+    --brand-light: #ffa45c;
+    --brand-deep: #e8590c;
+
+    --label: #fff;
+    --label-2: rgba(235, 235, 245, 0.6);
+    --label-3: rgba(235, 235, 245, 0.3);
+    --label-4: rgba(235, 235, 245, 0.16);
+    --fill: rgba(120, 120, 128, 0.36);
+    --fill-2: rgba(120, 120, 128, 0.32);
+    --fill-3: rgba(118, 118, 128, 0.24);
+    --fill-4: rgba(118, 118, 128, 0.18);
+    --bg: #000;
+    --bg-2: #1c1c1e;
+    --separator: rgba(84, 84, 88, 0.65);
+    --glass: rgba(36, 36, 40, 0.52);
+    --glass-strong: rgba(44, 44, 48, 0.72);
+    --glass-edge: rgba(255, 255, 255, 0.09);
+    --glass-line: rgba(255, 255, 255, 0.08);
+    --glass-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+    --shadow-pop: 0 10px 40px rgba(0, 0, 0, 0.6);
+    --ink-btn: #f5f5f7;
+    --ink-btn-text: #000;
+    --canvas: #0b0b0d;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    --dur: 1ms;
+    --dur-fast: 1ms;
+  }
+}

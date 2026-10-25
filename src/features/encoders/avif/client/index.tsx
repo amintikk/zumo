@@ -1,5 +1,6 @@
 import { EncodeOptions, AVIFTune, defaultOptions } from '../shared/meta';
 import type WorkerBridge from 'client/lazy-app/worker-bridge';
+import { S } from 'shared/strings';
 import { h, Component } from 'preact';
 import { preventDefault, shallowEqual } from 'client/lazy-app/util';
 import * as style from 'client/lazy-app/Compress/Options/style.css';
@@ -176,7 +177,7 @@ export class Options extends Component<Props, State> {
     return (
       <form class={style.optionsSection} onSubmit={preventDefault}>
         <label class={style.optionToggle}>
-          Lossless
+          {S.codec.lossless}
           <Checkbox
             checked={lossless}
             onChange={this._inputChange('lossless', 'boolean')}
@@ -191,7 +192,7 @@ export class Options extends Component<Props, State> {
                 value={quality}
                 onInput={this._inputChange('quality', 'number')}
               >
-                Calidad:
+                {S.editor.quality}
               </Range>
             </div>
           )}
@@ -201,7 +202,7 @@ export class Options extends Component<Props, State> {
             checked={showAdvanced}
             onChange={linkState(this, 'showAdvanced')}
           />
-          Ajustes avanzados
+          {S.editor.advanced}
         </label>
         <Expander>
           {showAdvanced && (
@@ -210,7 +211,7 @@ export class Options extends Component<Props, State> {
                 {!lossless && (
                   <div>
                     <label class={style.optionTextFirst}>
-                      Subsample chroma:
+                      {S.codec.subsample}
                       <Select
                         value={subsample}
                         onChange={this._inputChange('subsample', 'number')}
@@ -224,7 +225,7 @@ export class Options extends Component<Props, State> {
                     <Expander>
                       {subsample === 1 && (
                         <label class={style.optionToggle}>
-                          Sharp YUV Downsampling
+                          {S.codec.sharpYuv}
                           <Checkbox
                             checked={enableSharpYUV}
                             onChange={this._inputChange(
@@ -236,7 +237,7 @@ export class Options extends Component<Props, State> {
                       )}
                     </Expander>
                     <label class={style.optionToggle}>
-                      Separate alpha quality
+                      {S.codec.separateAlpha}
                       <Checkbox
                         checked={separateAlpha}
                         onChange={this._inputChange('separateAlpha', 'boolean')}
@@ -254,13 +255,13 @@ export class Options extends Component<Props, State> {
                               'number',
                             )}
                           >
-                            Calidad del alfa:
+                            {S.codec.alphaQuality}
                           </Range>
                         </div>
                       )}
                     </Expander>
                     <label class={style.optionToggle}>
-                      Extra chroma compression
+                      {S.codec.chromaDeltaQ}
                       <Checkbox
                         checked={chromaDeltaQ}
                         onChange={this._inputChange('chromaDeltaQ', 'boolean')}
@@ -273,7 +274,7 @@ export class Options extends Component<Props, State> {
                         value={sharpness}
                         onInput={this._inputChange('sharpness', 'number')}
                       >
-                        Sharpness:
+                        {S.codec.sharpness}
                       </Range>
                     </div>
                     <div class={style.optionOneCell}>
@@ -283,16 +284,16 @@ export class Options extends Component<Props, State> {
                         value={denoiseLevel}
                         onInput={this._inputChange('denoiseLevel', 'number')}
                       >
-                        Noise synthesis:
+                        {S.codec.noise}
                       </Range>
                     </div>
                     <label class={style.optionTextFirst}>
-                      Tuning:
+                      {S.codec.tuning}
                       <Select
                         value={tune}
                         onChange={this._inputChange('tune', 'number')}
                       >
-                        <option value={AVIFTune.auto}>Auto</option>
+                        <option value={AVIFTune.auto}>{S.codec.auto}</option>
                         <option value={AVIFTune.psnr}>PSNR</option>
                         <option value={AVIFTune.ssim}>SSIM</option>
                       </Select>
@@ -307,7 +308,7 @@ export class Options extends Component<Props, State> {
                   value={tileRows}
                   onInput={this._inputChange('tileRows', 'number')}
                 >
-                  Log2 of tile rows:
+                  {S.codec.tileRows}
                 </Range>
               </div>
               <div class={style.optionOneCell}>
@@ -317,7 +318,7 @@ export class Options extends Component<Props, State> {
                   value={tileCols}
                   onInput={this._inputChange('tileCols', 'number')}
                 >
-                  Log2 of tile cols:
+                  {S.codec.tileCols}
                 </Range>
               </div>
             </div>
@@ -330,7 +331,7 @@ export class Options extends Component<Props, State> {
             value={effort}
             onInput={this._inputChange('effort', 'number')}
           >
-            Effort:
+            {S.codec.effort}
           </Range>
         </div>
       </form>

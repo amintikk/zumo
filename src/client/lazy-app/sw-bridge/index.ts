@@ -1,4 +1,5 @@
 import type SnackBarElement from 'shared/custom-els/snack-bar';
+import { S } from 'shared/strings';
 
 import { get, set } from 'idb-keyval';
 
@@ -68,7 +69,7 @@ export async function offliner(showSnack: SnackBarElement['showSnackbar']) {
   navigator.serviceWorker.addEventListener('controllerchange', async () => {
     // Is it the first install?
     if (!hasController) {
-      showSnack('Lista para usar sin conexión', { timeout: 5000 });
+      showSnack(S.snack.offline);
       return;
     }
 
@@ -87,13 +88,13 @@ export async function offliner(showSnack: SnackBarElement['showSnackbar']) {
   await updateReady(reg);
 
   // Ask the user if they want to update.
-  const result = await showSnack('Hay una versión nueva', {
-    actions: ['recargar', 'cerrar'],
+  const result = await showSnack(S.snack.update, {
+    actions: [S.snack.reload],
   });
 
   // Tell the waiting worker to activate, this will change the controller and cause a reload (see
   // 'controllerchange')
-  if (result === 'recargar') skipWaiting();
+  if (result === S.snack.reload) skipWaiting();
 }
 
 /**

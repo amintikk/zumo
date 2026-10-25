@@ -1,0 +1,603 @@
+/* Shared components (see STYLES.md, section 7). Global on purpose: the
+   landing page and the editor use exactly the same pieces. */
+:global {
+  /* Glass */
+  .glass {
+    background: var(--glass);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    box-shadow: inset 0 0 0 0.5px var(--glass-edge), var(--glass-shadow);
+  }
+
+  /* Ambient light behind everything */
+  .ambient {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .ambient i {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.5;
+  }
+
+  .ambient .b1 {
+    width: 620px;
+    height: 620px;
+    left: -160px;
+    top: -200px;
+    background: #ffb06b;
+  }
+
+  .ambient .b2 {
+    width: 560px;
+    height: 560px;
+    right: -180px;
+    top: 80px;
+    background: #ff8f80;
+    opacity: 0.4;
+    animation: drift 22s ease-in-out infinite alternate;
+  }
+
+  .ambient .b3 {
+    width: 520px;
+    height: 520px;
+    left: 30%;
+    top: 60vh;
+    background: #ffd88f;
+    opacity: 0.35;
+    animation: drift 26s ease-in-out infinite alternate-reverse;
+  }
+
+  @keyframes drift {
+    to {
+      transform: translate(-60px, 40px) scale(1.08);
+    }
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 50px;
+    padding: 0 24px;
+    border-radius: 14px;
+    border: 0;
+    font: 600 16px var(--font);
+    letter-spacing: -0.01em;
+    cursor: pointer;
+    white-space: nowrap;
+    text-decoration: none;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease),
+      background-color 0.2s, filter 0.18s, opacity 0.2s;
+  }
+
+  .btn:active {
+    transform: scale(0.97);
+    filter: brightness(0.94);
+  }
+
+  .btn:disabled,
+  .btn[aria-disabled='true'] {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  .btn-primary {
+    background: var(--tint);
+    color: #fff;
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--tint) 32%, transparent);
+  }
+
+  @media (hover: hover) {
+    .btn-primary:hover {
+      box-shadow: 0 12px 30px color-mix(in srgb, var(--tint) 42%, transparent);
+      transform: translateY(-1px);
+    }
+
+    .btn-glass:hover {
+      background: var(--bg-2);
+    }
+
+    .btn-tinted:hover {
+      background: color-mix(in srgb, var(--tint) 20%, transparent);
+    }
+  }
+
+  .btn-glass {
+    background: var(--glass-strong);
+    color: var(--label);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    box-shadow: inset 0 0 0 0.5px var(--separator);
+  }
+
+  .btn-tinted {
+    background: color-mix(in srgb, var(--tint) 15%, transparent);
+    color: var(--tint);
+  }
+
+  .btn-ink {
+    background: var(--ink-btn);
+    color: var(--ink-btn-text);
+  }
+
+  .btn-plain {
+    background: none;
+    color: var(--tint);
+  }
+
+  .btn-sm {
+    height: 36px;
+    padding: 0 14px;
+    font-size: 14px;
+    border-radius: 10px;
+    gap: 6px;
+  }
+
+  .btn-block {
+    display: flex;
+    width: 100%;
+  }
+
+  .icon-btn {
+    width: 30px;
+    height: 30px;
+    flex: none;
+    display: grid;
+    place-items: center;
+    border: 0;
+    padding: 0;
+    border-radius: 50%;
+    background: var(--glass);
+    color: var(--label-2);
+    cursor: pointer;
+    box-shadow: inset 0 0 0 0.5px var(--glass-edge);
+    transition: background var(--dur-fast), color var(--dur-fast),
+      transform var(--dur-fast) var(--ease-out);
+  }
+
+  .icon-btn:active {
+    transform: scale(0.92);
+  }
+
+  .icon-btn:disabled {
+    opacity: 0.35;
+    pointer-events: none;
+  }
+
+  @media (hover: hover) {
+    .icon-btn:hover {
+      color: var(--label);
+      background: var(--glass-strong);
+    }
+  }
+
+  /* iOS switch */
+  .switch {
+    position: relative;
+    width: 51px;
+    height: 31px;
+    flex: none;
+    display: inline-block;
+  }
+
+  .switch input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    margin: 0;
+    cursor: pointer;
+    z-index: 1;
+  }
+
+  .switch .track {
+    position: absolute;
+    inset: 0;
+    border-radius: 31px;
+    background: var(--fill);
+    transition: background var(--dur) var(--ease);
+  }
+
+  .switch .knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 27px;
+    height: 27px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15), 0 3px 1px rgba(0, 0, 0, 0.06);
+    transition: transform var(--dur) var(--ease),
+      width var(--dur-fast) var(--ease);
+  }
+
+  .switch input:checked + .track {
+    background: var(--green);
+  }
+
+  .switch input:checked + .track .knob {
+    transform: translateX(20px);
+  }
+
+  .switch input:active + .track .knob {
+    width: 32px;
+  }
+
+  .switch input:checked:active + .track .knob {
+    transform: translateX(15px);
+  }
+
+  .switch input:focus-visible + .track {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--tint) 40%, transparent);
+  }
+
+  .switch input:disabled + .track {
+    opacity: 0.4;
+  }
+
+  /* Pills */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    height: 22px;
+    padding: 0 8px;
+    border-radius: 11px;
+    font: var(--footnote);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .pill.good {
+    color: var(--green);
+    background: color-mix(in srgb, var(--green) 14%, transparent);
+  }
+
+  .pill.bad {
+    color: var(--red);
+    background: color-mix(in srgb, var(--red) 12%, transparent);
+  }
+
+  .pill.warn {
+    color: var(--orange);
+    background: color-mix(in srgb, var(--orange) 14%, transparent);
+  }
+
+  .pill.info {
+    color: var(--tint);
+    background: color-mix(in srgb, var(--tint) 14%, transparent);
+  }
+
+  .pill.flat {
+    color: var(--label-2);
+    background: var(--fill-3);
+  }
+
+  /* Grouped lists (iOS Settings) */
+  .group-header {
+    padding: 0 16px 6px;
+    font: var(--footnote);
+    color: var(--label-2);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .group-footer {
+    padding: 6px 16px 0;
+    font: var(--footnote);
+    color: var(--label-2);
+  }
+
+  .list {
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .row {
+    position: relative;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 14px;
+    width: 100%;
+    box-sizing: border-box;
+    border: 0;
+    background: none;
+    text-align: left;
+    font: var(--body);
+    letter-spacing: var(--track-text);
+    color: var(--label);
+  }
+
+  button.row,
+  label.row {
+    cursor: pointer;
+    transition: background-color var(--dur-fast);
+  }
+
+  button.row:active,
+  label.row:active {
+    background: var(--fill-4);
+  }
+
+  .row + .row::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: var(--inset, 14px);
+    height: 0.5px;
+    background: var(--glass-line);
+  }
+
+  .row.with-icon {
+    --inset: 55px;
+  }
+
+  .row .grow {
+    flex: 1;
+    min-width: 0;
+    padding: 11px 0;
+  }
+
+  .row .value {
+    color: var(--label-2);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .row .chev {
+    color: var(--label-3);
+  }
+
+  .row-icon {
+    width: 29px;
+    height: 29px;
+    border-radius: 7px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    flex: none;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  }
+
+  /* Colour tiles (like Settings icons) */
+  .tile {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    flex: none;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  }
+
+  .t-orange {
+    background: linear-gradient(
+      var(--brand-light),
+      color-mix(in srgb, var(--brand) 85%, #000)
+    );
+  }
+
+  .t-red {
+    background: linear-gradient(
+      var(--red),
+      color-mix(in srgb, var(--red) 78%, #000)
+    );
+  }
+
+  .t-green {
+    background: linear-gradient(
+      var(--green),
+      color-mix(in srgb, var(--green) 75%, #000)
+    );
+  }
+
+  .t-blue {
+    background: linear-gradient(
+      var(--blue),
+      color-mix(in srgb, var(--blue) 75%, #000)
+    );
+  }
+
+  .t-indigo {
+    background: linear-gradient(
+      var(--indigo),
+      color-mix(in srgb, var(--indigo) 78%, #000)
+    );
+  }
+
+  .t-teal {
+    background: linear-gradient(
+      var(--teal),
+      color-mix(in srgb, var(--teal) 75%, #000)
+    );
+  }
+
+  .t-pink {
+    background: linear-gradient(
+      var(--pink),
+      color-mix(in srgb, var(--pink) 78%, #000)
+    );
+  }
+
+  .t-gray {
+    background: linear-gradient(
+      var(--gray),
+      color-mix(in srgb, var(--gray) 75%, #000)
+    );
+  }
+
+  /* Text fields */
+  .field {
+    width: 100%;
+    box-sizing: border-box;
+    border: 0;
+    border-radius: 10px;
+    background: var(--fill-4);
+    color: var(--label);
+    font: 400 15px var(--font);
+    font-variant-numeric: tabular-nums;
+    padding: 9px 12px;
+    box-shadow: inset 0 0 0 0.5px var(--separator);
+    transition: box-shadow 0.2s, background-color 0.2s;
+    -moz-appearance: textfield;
+  }
+
+  .field::-webkit-outer-spin-button,
+  .field::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .field::placeholder {
+    color: var(--label-3);
+  }
+
+  .field:focus {
+    outline: none;
+    background-color: var(--bg-2);
+    box-shadow: inset 0 0 0 1.5px var(--tint),
+      0 0 0 4px color-mix(in srgb, var(--tint) 18%, transparent);
+  }
+
+  /* Apple-style 12-step spinner */
+  .spinner {
+    width: 22px;
+    height: 22px;
+    flex: none;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, transparent 0 15%, var(--label-3));
+    -webkit-mask: radial-gradient(
+      farthest-side,
+      transparent calc(100% - 2.5px),
+      #000 0
+    );
+    mask: radial-gradient(
+      farthest-side,
+      transparent calc(100% - 2.5px),
+      #000 0
+    );
+    animation: spin 0.9s steps(12) infinite;
+  }
+
+  .spinner.small {
+    width: 14px;
+    height: 14px;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+
+  .skeleton {
+    border-radius: 6px;
+    background: linear-gradient(
+      90deg,
+      var(--fill-4),
+      var(--fill-3),
+      var(--fill-4)
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.4s linear infinite;
+  }
+
+  @keyframes shimmer {
+    to {
+      background-position: -200% 0;
+    }
+  }
+
+  /* Progress */
+  .meter-track {
+    height: 4px;
+    border-radius: 2px;
+    background: var(--fill-3);
+    overflow: hidden;
+  }
+
+  .meter-track > div {
+    height: 100%;
+    background: var(--tint);
+    border-radius: 2px;
+    transition: width var(--dur) var(--ease);
+  }
+
+  /* Scroll reveal: never hides content without JS */
+  .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.8s var(--ease-out) var(--d, 0ms),
+      transform 0.8s var(--ease-out) var(--d, 0ms);
+  }
+
+  .reveal.in,
+  .no-js .reveal {
+    opacity: 1;
+    transform: none;
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.98);
+    }
+  }
+
+  @keyframes pop {
+    from {
+      transform: scale(0.4);
+      opacity: 0;
+    }
+    60% {
+      transform: scale(1.08);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .ambient i {
+      opacity: 0.2;
+    }
+
+    .ambient .b3 {
+      opacity: 0.12;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+
+    .ambient i {
+      animation: none;
+    }
+  }
+}

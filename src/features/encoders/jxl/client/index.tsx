@@ -1,5 +1,6 @@
 import { EncodeOptions } from '../shared/meta';
 import type WorkerBridge from 'client/lazy-app/worker-bridge';
+import { S } from 'shared/strings';
 import { h, Component } from 'preact';
 import { preventDefault, shallowEqual } from 'client/lazy-app/util';
 import * as style from 'client/lazy-app/Compress/Options/style.css';
@@ -133,7 +134,7 @@ export class Options extends Component<Props, State> {
     return (
       <form class={style.optionsSection} onSubmit={preventDefault}>
         <label class={style.optionToggle}>
-          Lossless
+          {S.codec.lossless}
           <Checkbox
             name="lossless"
             checked={lossless}
@@ -143,7 +144,7 @@ export class Options extends Component<Props, State> {
         <Expander>
           {lossless && (
             <label class={style.optionToggle}>
-              Slight loss
+              {S.codec.slightLoss}
               <Checkbox
                 name="slightLoss"
                 checked={slightLoss}
@@ -163,11 +164,11 @@ export class Options extends Component<Props, State> {
                   value={quality}
                   onInput={this._inputChange('quality', 'number')}
                 >
-                  Calidad:
+                  {S.editor.quality}
                 </Range>
               </div>
               <label class={style.optionToggle}>
-                Alternative lossy mode
+                {S.codec.altLossy}
                 <Checkbox
                   checked={quality < 7 ? true : alternativeLossy}
                   disabled={quality < 7}
@@ -175,7 +176,7 @@ export class Options extends Component<Props, State> {
                 />
               </label>
               <label class={style.optionToggle}>
-                Auto edge filter
+                {S.codec.autoEdge}
                 <Checkbox
                   checked={autoEdgePreservingFilter}
                   onChange={this._inputChange(
@@ -196,7 +197,7 @@ export class Options extends Component<Props, State> {
                         'number',
                       )}
                     >
-                      Edge preserving filter:
+                      {S.codec.edgeFilter}
                     </Range>
                   </div>
                 )}
@@ -208,7 +209,7 @@ export class Options extends Component<Props, State> {
                   value={decodingSpeedTier}
                   onInput={this._inputChange('decodingSpeedTier', 'number')}
                 >
-                  Optimise for decoding speed (worse compression):
+                  {S.codec.decodeSpeed}
                 </Range>
               </div>
               <div class={style.optionOneCell}>
@@ -219,14 +220,14 @@ export class Options extends Component<Props, State> {
                   value={photonNoiseIso}
                   onInput={this._inputChange('photonNoiseIso', 'number')}
                 >
-                  Noise equivalent to ISO:
+                  {S.codec.noiseIso}
                 </Range>
               </div>
             </div>
           )}
         </Expander>
         <label class={style.optionToggle}>
-          Progressive rendering
+          {S.codec.progressive}
           <Checkbox
             name="progressive"
             checked={progressive}
@@ -240,7 +241,7 @@ export class Options extends Component<Props, State> {
             value={effort}
             onInput={this._inputChange('effort', 'number')}
           >
-            Effort:
+            {S.codec.effort}
           </Range>
         </div>
       </form>

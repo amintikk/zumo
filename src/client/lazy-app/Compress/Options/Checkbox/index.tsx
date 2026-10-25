@@ -1,27 +1,16 @@
-import { h, Component } from 'preact';
-import * as style from './style.css';
-import 'add-css:./style.css';
-import { UncheckedIcon, CheckedIcon } from '../../../icons';
+import { h } from 'preact';
 
 interface Props extends preact.JSX.HTMLAttributes {}
-interface State {}
 
-export default class Checkbox extends Component<Props, State> {
-  render(props: Props) {
-    return (
-      <div class={style.checkbox}>
-        {props.checked ? (
-          props.disabled ? (
-            <CheckedIcon class={`${style.icon} ${style.disabled}`} />
-          ) : (
-            <CheckedIcon class={`${style.icon} ${style.checked}`} />
-          )
-        ) : (
-          <UncheckedIcon class={style.icon} />
-        )}
-        {/* @ts-ignore - TS bug https://github.com/microsoft/TypeScript/issues/16019 */}
-        <input class={style.realCheckbox} type="checkbox" {...props} />
-      </div>
-    );
-  }
+/** Boolean option, shown as an iOS switch (see .switch in ui.css). */
+export default function Checkbox(props: Props) {
+  return (
+    <span class="switch">
+      {/* @ts-ignore - TS bug https://github.com/microsoft/TypeScript/issues/16019 */}
+      <input type="checkbox" role="switch" {...props} />
+      <span class="track">
+        <span class="knob" />
+      </span>
+    </span>
+  );
 }

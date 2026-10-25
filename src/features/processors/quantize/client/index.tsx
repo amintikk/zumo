@@ -1,3 +1,4 @@
+import { S } from 'shared/strings';
 import { h, Component } from 'preact';
 import { Options as QuantizeOptions } from '../shared/meta';
 import * as style from 'client/lazy-app/Compress/Options/style.css';
@@ -53,13 +54,13 @@ export class Options extends Component<Props, State> {
         <Expander>
           {extendedSettings ? (
             <label class={style.optionTextFirst}>
-              Type:
+              {S.codec.type}
               <Select
                 name="zx"
                 value={'' + options.zx}
                 onChange={this.onChange}
               >
-                <option value="0">Standard</option>
+                <option value="0">{S.codec.standard}</option>
                 <option value="1">ZX</option>
               </Select>
             </label>
@@ -75,7 +76,7 @@ export class Options extends Component<Props, State> {
                 value={options.maxNumColors}
                 onInput={this.onChange}
               >
-                Colors:
+                {S.codec.colors}
               </Range>
             </div>
           )}
@@ -89,7 +90,7 @@ export class Options extends Component<Props, State> {
             value={options.dither}
             onInput={this.onChange}
           >
-            Dithering:
+            {S.codec.dithering}
           </Range>
         </div>
       </form>

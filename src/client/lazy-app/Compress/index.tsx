@@ -27,6 +27,9 @@ import {
   processSvg,
 } from './pipeline';
 import Sidebar from './Sidebar';
+import { Icon } from 'shared/icons';
+import { S } from 'shared/strings';
+import { formatBytes, formatNames, mainFormats } from './Sidebar/format';
 import type { BatchEntry } from '../batch/expand';
 
 export interface SourceImage {
@@ -162,7 +165,7 @@ function loadSettings(): SideSettings {
     if (
       saved &&
       saved.encoderState &&
-      saved.encoderState.type in encoderMap &&
+      mainFormats.includes(saved.encoderState.type) &&
       saved.processorState
     ) {
       return {
@@ -461,7 +464,7 @@ export default class Compress extends Component<Props, State> {
         }
       } catch (err) {
         if (err instanceof Error && err.name === 'AbortError') return;
-        this.props.showSnack(`No se pudo leer la imagen: ${err}`);
+        this.props.showSnack(S.snack.decodeError);
         throw err;
       }
     } else {
@@ -520,7 +523,7 @@ export default class Compress extends Component<Props, State> {
       } catch (err) {
         if (err instanceof Error && err.name === 'AbortError') return;
         this.setState({ loading: false });
-        this.props.showSnack(`Error al preparar la imagen: ${err}`);
+        this.props.showSnack(S.snack.processError);
         throw err;
       }
     } else {
@@ -649,7 +652,7 @@ export default class Compress extends Component<Props, State> {
           });
           return { sides };
         });
-        this.props.showSnack(`Error al procesar: ${err}`);
+        this.props.showSnack(S.snack.processError);
         throw err;
       }
     });
@@ -670,55 +673,68 @@ export default class Compress extends Component<Props, State> {
     const [leftImageData, rightImageData] = sides.map((i) => i.data);
     const settings = side.latestSettings;
     const total = batch ? batch.entries.length : 0;
+    const busy = loading || side.loading;
     const encoderLabel = settings.encoderState
-      ? encoderMap[settings.encoderState.type].meta.label
+      ? formatNames[settings.encoderState.type]
       : '';
 
     return (
       <div class={style.compress}>
+        <div class={`ambient ${style.ambient}`} aria-hidden="true">
+          <i class="b1" />
+          <i class="b2" />
+        </div>
+
         <header class={style.topBar}>
-          <button class={style.back} onClick={onBack} title="Volver">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M20 11H7.8l5.6-5.6L12 4l-8 8 8 8 1.4-1.4L7.8 13H20v-2Z" />
-            </svg>
+          <button class={style.back} onClick={onBack}>
+            <Icon name="chevron-left" size={22} weight={2.4} />
+            {S.editor.back}
           </button>
-          <span class={style.brand}>zumo</span>
 
           {batch ? (
-            <nav class={style.previewNav}>
+            <nav class={style.previewNav} aria-label={S.batch.listTitle}>
               <button
-                class={style.navButton}
+                class="icon-btn"
                 onClick={() =>
                   this.onPreviewChange((previewIndex - 1 + total) % total)
                 }
-                title="Imagen anterior"
+                title={S.editor.prev}
+                aria-label={S.editor.prev}
               >
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4-4.6-4.6z" />
-                </svg>
+                <Icon name="chevron-left" size={16} weight={2.4} />
               </button>
               <span
                 class={style.previewName}
                 title={batch.entries[previewIndex].path}
               >
-                <span class={style.previewCount}>
-                  {previewIndex + 1}/{total}
+                <span class={style.previewTitle}>
+                  {batch.entries[previewIndex].path.split('/').pop()}
                 </span>
-                {batch.entries[previewIndex].path}
+                <span class={style.previewCount}>
+                  {previewIndex + 1} {S.editor.of} {total}
+                </span>
               </span>
               <button
-                class={style.navButton}
+                class="icon-btn"
                 onClick={() => this.onPreviewChange((previewIndex + 1) % total)}
-                title="Imagen siguiente"
+                title={S.editor.next}
+                aria-label={S.editor.next}
               >
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M8.6 16.6 10 18l6-6-6-6-1.4 1.4 4.6 4.6z" />
-                </svg>
+                <Icon name="chevron-right" size={16} weight={2.4} />
               </button>
             </nav>
           ) : (
             <span class={style.fileName}>{source?.file.name}</span>
           )}
+
+          <span class={style.status} aria-live="polite">
+            {busy && (
+              <span class={style.statusBusy}>
+                <span class="spinner small" />
+                <span class={style.statusText}>{S.editor.working}</span>
+              </span>
+            )}
+          </span>
         </header>
 
         <div class={style.stage}>
@@ -733,13 +749,21 @@ export default class Compress extends Component<Props, State> {
             onPreprocessorChange={this.onPreprocessorChange}
             hideRotate={!!batch}
           />
-          <span class={`${style.stageLabel} ${style.stageLabelStart}`}>
-            Original
+          <span class={`${style.stageLabel} ${style.stageLabelStart} glass`}>
+            {S.editor.original}
+            {source && (
+              <span class={style.stageSize}>
+                {formatBytes(source.file.size)}
+              </span>
+            )}
           </span>
-          <span class={`${style.stageLabel} ${style.stageLabelEnd}`}>
+          <span class={`${style.stageLabel} ${style.stageLabelEnd} glass`}>
             {encoderLabel}
+            {side.file && !busy && (
+              <span class={style.stageSize}>{formatBytes(side.file.size)}</span>
+            )}
           </span>
-          {(loading || side.loading) && <div class={style.stageLoading} />}
+          {busy && <div class={style.stageLoading} />}
         </div>
 
         <Sidebar
@@ -748,7 +772,7 @@ export default class Compress extends Component<Props, State> {
           resultFile={side.file}
           resultData={side.data}
           downloadUrl={side.downloadUrl}
-          loading={loading || side.loading}
+          loading={busy}
           batch={batch}
           previewIndex={previewIndex}
           onPreviewChange={this.onPreviewChange}

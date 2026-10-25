@@ -3,6 +3,9 @@ import * as style from './style.css';
 import 'add-css:./style.css';
 import { transitionHeight } from '../../../util';
 
+const reducedMotion = () =>
+  matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 interface Props {
   children: ComponentChildren;
 }
@@ -44,7 +47,8 @@ export default class Expander extends Component<Props, State> {
     (this.base as HTMLElement).style.overflow = 'hidden';
 
     await transitionHeight(this.base as HTMLElement, {
-      duration: 300,
+      duration: reducedMotion() ? 0 : 380,
+      easing: 'cubic-bezier(.32, .72, 0, 1)',
       from: heightFrom,
       to: heightTo,
     });

@@ -15,7 +15,7 @@ function createSnack(
   message: string,
   options: SnackOptions,
 ): [Element, Promise<string>] {
-  const { timeout = 0, actions = ['cerrar'] } = options;
+  const { actions = [], timeout = actions.length ? 0 : 3000 } = options;
 
   const el = document.createElement('div');
   el.className = style.snackbar;
@@ -88,6 +88,8 @@ export default class SnackBarElement extends HTMLEl {
       el.setAttribute('aria-hidden', 'true');
       await new Promise<void>((resolve) => {
         el.addEventListener('animationend', () => resolve());
+        // Never get stuck if the exit animation doesn't run
+        setTimeout(resolve, 600);
       });
       el.remove();
 

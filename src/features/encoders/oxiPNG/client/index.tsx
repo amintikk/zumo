@@ -1,6 +1,7 @@
 import { inputFieldChecked } from 'client/lazy-app/util';
 import { EncodeOptions } from '../shared/meta';
 import type WorkerBridge from 'client/lazy-app/worker-bridge';
+import { S } from 'shared/strings';
 import { h, Component } from 'preact';
 import { inputFieldValueAsNumber, preventDefault } from 'client/lazy-app/util';
 import * as style from 'client/lazy-app/Compress/Options/style.css';
@@ -38,7 +39,7 @@ export class Options extends Component<Props, {}> {
     return (
       <form class={style.optionsSection} onSubmit={preventDefault}>
         <label class={style.optionToggle}>
-          Interlace
+          {S.codec.interlace}
           <Checkbox
             name="interlace"
             checked={options.interlace}
@@ -54,7 +55,7 @@ export class Options extends Component<Props, {}> {
             value={options.level}
             onInput={this.onChange}
           >
-            Effort:
+            {S.codec.effort}
           </Range>
         </div>
       </form>

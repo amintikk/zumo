@@ -69,13 +69,11 @@ export default class TwoUp extends HTMLElement {
     this._childrenChange();
 
     // prettier-ignore
+    // Lucide "chevrons-left-right", drawn inline so the element stays standalone
     this._handle.innerHTML =
-      `<div class="${styles.scrubber}">${
-        `<svg viewBox="0 0 27 20">${
-          `<path class="${styles.arrowLeft}" d="M9.6 0L0 9.6l9.6 9.6z"/>` +
-          `<path class="${styles.arrowRight}" d="M17 19.2l9.5-9.6L16.9 0z"/>`
-        }</svg>
-      `}</div>`;
+      `<div class="${styles.scrubber}">` +
+      '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="m9 7-5 5 5 5"/><path d="m15 7 5 5-5 5"/></svg></div>';
 
     // Watch for element size changes.
     this._resizeObserver = new ResizeObserver(() => this._resetPosition());

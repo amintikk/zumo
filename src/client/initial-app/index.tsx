@@ -13,6 +13,9 @@
 import { h, render } from 'preact';
 import App from './App';
 
+// Scroll-reveal content is only hidden once we know JS is running
+document.documentElement.classList.remove('no-js');
+
 const root = document.getElementById('app') as HTMLElement;
 
 async function main() {
@@ -21,4 +24,3 @@ async function main() {
 }
 
 main();
-

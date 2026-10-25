@@ -6,6 +6,7 @@
   height: 100%;
   overflow: hidden;
   contain: strict;
+  background: var(--bg);
 }
 
 .drop {
@@ -13,56 +14,63 @@
   touch-action: none;
   height: 100%;
   width: 100%;
-
-  &:global {
-    &::after {
-      content: '';
-      position: absolute;
-      display: block;
-      left: 10px;
-      top: 10px;
-      right: 10px;
-      bottom: 10px;
-      border: 2px dashed #fff;
-      background-color: rgba(0, 0, 0, 0.1);
-      border-color: var(--pink);
-      border-radius: 10px;
-      opacity: 0;
-      transform: scale(0.95);
-      transition: all 200ms ease-in;
-      transition-property: transform, opacity;
-      pointer-events: none;
-    }
-
-    &.drop-valid::after {
-      opacity: 1;
-      transform: scale(1);
-      transition-timing-function: ease-out;
-    }
-  }
 }
 
-.option-pair {
-  display: flex;
-  justify-content: flex-end;
-  width: 100%;
-  height: 100%;
-
-  &.horizontal {
-    justify-content: space-between;
-    align-items: flex-end;
-  }
-
-  &.vertical {
-    flex-direction: column;
-  }
-}
-
-.app-loader {
+/* Shown while files are dragged over the page */
+.drop-hint {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  --size: 225px;
-  --stroke-width: 26px;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--bg) 45%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-fast) var(--ease-out);
+
+  :global(.drop-valid) > & {
+    opacity: 1;
+  }
+}
+
+.drop-hint-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 30px 40px;
+  border-radius: 28px;
+  font: var(--title3);
+  letter-spacing: var(--track-display);
+  color: var(--label);
+  transform: scale(0.96);
+  transition: transform var(--dur) var(--ease);
+
+  :global(.drop-valid) & {
+    transform: none;
+  }
+}
+
+/* Opening a ZIP, loading the editor */
+.busy {
+  position: absolute;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--bg) 40%, transparent);
+  animation: fade-in var(--dur) var(--ease) both;
+}
+
+.busy-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 22px;
+  border-radius: 18px;
+  font: var(--headline);
+  color: var(--label);
+  animation: rise-in var(--dur) var(--ease) both;
 }
