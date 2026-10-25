@@ -191,7 +191,7 @@ export class Options extends Component<Props, State> {
                 value={quality}
                 onInput={this._inputChange('quality', 'number')}
               >
-                Quality:
+                Calidad:
               </Range>
             </div>
           )}
@@ -201,7 +201,7 @@ export class Options extends Component<Props, State> {
             checked={showAdvanced}
             onChange={linkState(this, 'showAdvanced')}
           />
-          Advanced settings
+          Ajustes avanzados
         </label>
         <Expander>
           {showAdvanced && (
@@ -254,7 +254,7 @@ export class Options extends Component<Props, State> {
                               'number',
                             )}
                           >
-                            Alpha quality:
+                            Calidad del alfa:
                           </Range>
                         </div>
                       )}

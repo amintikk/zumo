@@ -168,17 +168,17 @@ export default class Options extends Component<Props, State> {
             <div>
               <h3 class={style.optionsTitle}>
                 <div class={style.titleAndButtons}>
-                  Edit
+                  Editar
                   <button
                     class={style.copyOverButton}
-                    title="Copy settings to other side"
+                    title="Copiar ajustes al otro lado"
                     onClick={this.onCopyToOtherSideClick}
                   >
                     <SwapIcon />
                   </button>
                   <button
                     class={style.saveButton}
-                    title="Save side settings"
+                    title="Guardar ajustes de este lado"
                     onClick={this.onSaveSideSettingClick}
                   >
                     <SaveIcon />
@@ -195,7 +195,7 @@ export default class Options extends Component<Props, State> {
                         ? style.buttonOpacity
                         : '')
                     }
-                    title="Import saved side settings"
+                    title="Cargar ajustes guardados"
                     onClick={this.onImportSideSettingsClick}
                     disabled={
                       // Disabled if this side's settings haven't been saved
@@ -209,7 +209,7 @@ export default class Options extends Component<Props, State> {
                 </div>
               </h3>
               <label class={style.sectionEnabler}>
-                Resize
+                Redimensionar
                 <Toggle
                   name="resize.enable"
                   checked={!!processorState.resize.enabled}
@@ -229,7 +229,7 @@ export default class Options extends Component<Props, State> {
               </Expander>
 
               <label class={style.sectionEnabler}>
-                Reduce palette
+                Reducir paleta
                 <Toggle
                   name="quantize.enable"
                   checked={!!processorState.quantize.enabled}
@@ -248,7 +248,7 @@ export default class Options extends Component<Props, State> {
           )}
         </Expander>
 
-        <h3 class={style.optionsTitle}>Compress</h3>
+        <h3 class={style.optionsTitle}>Comprimir</h3>
 
         <section class={`${style.optionOneCell} ${style.optionsSection}`}>
           {supportedEncoderMap ? (
@@ -257,7 +257,7 @@ export default class Options extends Component<Props, State> {
               onChange={this.onEncoderTypeChange}
               large
             >
-              <option value="identity">{`Original Image ${
+              <option value="identity">{`Imagen original ${
                 this.props.source ? `(${this.props.source.file.name})` : ''
               }`}</option>
               {Object.entries(supportedEncoderMap).map(([type, encoder]) => (

@@ -12,16 +12,10 @@
  */
 import { h } from 'preact';
 
-import { renderPage, writeFiles } from './utils';
+import { renderPage, writeFiles, siteOrigin } from './utils';
 import IndexPage from './pages/index';
 import * as iconLargeMaskable from 'img-url:static-build/assets/icon-large-maskable.png';
 import * as iconLarge from 'img-url:static-build/assets/icon-large.png';
-import * as screenshot1 from 'img-url:static-build/assets/screenshot1.png';
-import * as screenshot2 from 'img-url:static-build/assets/screenshot2.jpg';
-import * as screenshot3 from 'img-url:static-build/assets/screenshot3.jpg';
-import * as screenshot4 from 'img-url:static-build/assets/screenshot4.png';
-import * as screenshot5 from 'img-url:static-build/assets/screenshot5.jpg';
-import * as screenshot6 from 'img-url:static-build/assets/screenshot6.jpg';
 import dedent from 'dedent';
 import { lookup as lookupMime } from 'mime-types';
 
@@ -31,22 +25,6 @@ interface Dimensions {
 }
 
 const manifestSize = ({ width, height }: Dimensions) => `${width}x${height}`;
-const formFactor = ({ width, height }: Dimensions) =>
-  width > height ? 'wide' : 'narrow';
-
-const screenshots = [
-  screenshot1,
-  screenshot2,
-  screenshot3,
-  screenshot4,
-  screenshot5,
-  screenshot6,
-].map((screenshot) => ({
-  src: screenshot.default,
-  type: lookupMime(screenshot.default),
-  sizes: manifestSize(screenshot),
-  form_factor: formFactor(screenshot),
-}));
 
 interface Output {
   [outputPath: string]: string;
@@ -55,13 +33,13 @@ interface Output {
 const toOutput: Output = {
   'index.html': renderPage(<IndexPage />),
   'manifest.json': JSON.stringify({
-    name: 'Squoosh',
-    short_name: 'Squoosh',
+    name: 'zumo · Optimizador de imágenes',
+    short_name: 'zumo',
     start_url: '/?utm_medium=PWA&utm_source=launcher',
     display: 'standalone',
     orientation: 'any',
-    background_color: '#fff',
-    theme_color: '#ff3385',
+    background_color: '#fff7ec',
+    theme_color: '#ff7a1a',
     icons: [
       {
         src: iconLarge.default,
@@ -76,10 +54,9 @@ const toOutput: Output = {
       },
     ],
     description:
-      'Compress and compare images with different codecs, right in your browser.',
-    lang: 'en',
+      'Optimiza imágenes una a una o en lote desde un ZIP, directamente en tu navegador.',
+    lang: 'es',
     categories: ['photo', 'productivity', 'utilities'],
-    screenshots,
     share_target: {
       action: '/?utm_medium=PWA&utm_source=share-target&share-target',
       method: 'POST',
@@ -94,6 +71,24 @@ const toOutput: Output = {
       },
     },
   }),
+  // IndexNow ownership key (public by design)
+  '50bf579a186c64027df6fe14832d5259.txt': '50bf579a186c64027df6fe14832d5259',
+  'robots.txt': dedent`
+    User-agent: *
+    Allow: /
+
+    Sitemap: ${siteOrigin}/sitemap.xml
+  `,
+  'sitemap.xml': dedent`
+    <?xml version="1.0" encoding="UTF-8"?>
+    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+      <url>
+        <loc>${siteOrigin}/</loc>
+        <changefreq>monthly</changefreq>
+        <priority>1.0</priority>
+      </url>
+    </urlset>
+  `,
   _headers: dedent`
     /*
       Cache-Control: no-cache

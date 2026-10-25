@@ -15,7 +15,7 @@ function createSnack(
   message: string,
   options: SnackOptions,
 ): [Element, Promise<string>] {
-  const { timeout = 0, actions = ['dismiss'] } = options;
+  const { timeout = 0, actions = ['cerrar'] } = options;
 
   const el = document.createElement('div');
   el.className = style.snackbar;

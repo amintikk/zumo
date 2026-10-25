@@ -15,8 +15,9 @@ import { h, FunctionalComponent } from 'preact';
 import baseCss from 'css:./base.css';
 import initialCss from 'initial-css:';
 import { allSrc } from 'client-bundle:client/initial-app';
-import favicon from 'url:static-build/assets/favicon.ico';
-import ogImage from 'url:static-build/assets/icon-large-maskable.png';
+import favicon from 'url:static-build/assets/favicon.png';
+import touchIcon from 'url:static-build/assets/icon-large-maskable.png';
+import ogImage from 'url:static-build/assets/og.png';
 import { escapeStyleScriptContent, siteOrigin } from 'static-build/utils';
 import Intro from 'shared/prerendered-app/Intro';
 import snackbarCss from 'css:../../../shared/custom-els/snack-bar/styles.css';
@@ -24,17 +25,24 @@ import * as snackbarStyle from '../../../shared/custom-els/snack-bar/styles.css'
 
 interface Props {}
 
+const gaMeasurementId = 'G-X02W5L49KB';
+const gaSnippet = `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${gaMeasurementId}');`;
+
+const title = 'zumo · Optimiza imágenes en lote desde un ZIP';
+const description =
+  'Comprime JPG, PNG, WebP, AVIF y JPEG XL en tu navegador. Sube un ZIP con cientos de imágenes y descárgalas todas optimizadas, sin subirlas a ningún servidor.';
+
 const Index: FunctionalComponent<Props> = () => (
-  <html lang="en">
+  <html lang="es">
     <head>
-      <title>Squoosh</title>
-      <meta
-        name="description"
-        content="Squoosh is the ultimate image optimizer that allows you to compress and compare images with different codecs in your browser."
-      />
-      <meta name="twitter:card" content="summary" />
-      <meta name="twitter:site" content="@SquooshApp" />
-      <meta property="og:title" content="Squoosh" />
+      <meta charSet="utf-8" />
+      <title>{title}</title>
+      <meta name="description" content={description} />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta property="og:title" content={title} />
+      <meta property="og:site_name" content="zumo" />
+      <meta property="og:locale" content="es_ES" />
+      <meta property="og:url" content={siteOrigin + '/'} />
       <meta property="og:type" content="website" />
       <meta property="og:image" content={`${siteOrigin}${ogImage}`} />
       <meta
@@ -42,27 +50,34 @@ const Index: FunctionalComponent<Props> = () => (
         content={`${siteOrigin}${ogImage}`}
       />
       <meta property="og:image:type" content="image/png" />
-      <meta property="og:image:width" content="500" />
-      <meta property="og:image:height" content="500" />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
       <meta
         property="og:image:alt"
-        content="A cartoon of a hand squeezing an image file on a dark background."
+        content="Rodaja de naranja junto al texto: zumo, exprime tus imágenes."
       />
-      <meta
-        name="og:description"
-        content="Squoosh is the ultimate image optimizer that allows you to compress and compare images with different codecs in your browser."
-      />
+      <meta property="og:description" content={description} />
       <meta
         name="viewport"
         content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
       />
       <meta name="mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
-      <link rel="shortcut icon" href={favicon} />
-      <link rel="apple-touch-icon" href={ogImage} />
-      <meta name="theme-color" content="#ff3385" />
+      <link rel="icon" type="image/png" href={favicon} />
+      <link rel="apple-touch-icon" href={touchIcon} />
+      <meta name="theme-color" content="#ff7a1a" />
       <link rel="manifest" href="/manifest.json" />
-      <link rel="canonical" href={siteOrigin} />
+      <script
+        async
+        crossOrigin="anonymous"
+        src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`}
+      />
+      <script
+        dangerouslySetInnerHTML={{
+          __html: escapeStyleScriptContent(gaSnippet),
+        }}
+      />
+      <link rel="canonical" href={siteOrigin + '/'} />
       <style
         dangerouslySetInnerHTML={{ __html: escapeStyleScriptContent(baseCss) }}
       />
@@ -89,11 +104,11 @@ const Index: FunctionalComponent<Props> = () => (
               aria-hidden="false"
             >
               <div class={snackbarStyle.text}>
-                Initialization error: This site requires JavaScript, which is
-                disabled in your browser.
+                Esta web necesita JavaScript, y está desactivado en tu
+                navegador.
               </div>
               <a class={snackbarStyle.button} href="/">
-                reload
+                recargar
               </a>
             </div>
           </snack-bar>

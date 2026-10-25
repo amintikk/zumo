@@ -1,38 +1,65 @@
-# [Squoosh]!
+<img src="src/shared/prerendered-app/Intro/imgs/zumo-mark.svg" width="64" height="64" alt="">
 
-[Squoosh] is an image compression web app that reduces image sizes through numerous formats.
+# zumo
 
-# Privacy
+**Optimiza imágenes una a una o en lote desde un ZIP, sin salir del navegador.**
 
-Squoosh does not send your image to a server. All image compression processes locally.
+https://zumo.aminox.dev
 
-However, Squoosh utilizes Google Analytics to collect the following:
+Todo el trabajo (descomprimir el ZIP, decodificar, redimensionar, comprimir y crear el ZIP de
+salida) ocurre en el navegador con WebAssembly y Web Workers. Ninguna imagen se sube a ningún
+servidor: el servidor solo entrega archivos estáticos.
 
-- [Basic visitor data](https://support.google.com/analytics/answer/6004245?ref_topic=2919631).
-- The before and after image size value.
-- If Squoosh PWA, the type of Squoosh installation.
-- If Squoosh PWA, the installation time and date.
+## Qué hace
 
-# Developing
+- **Lotes:** suelta un `.zip` (o selecciona varias imágenes) y se abre el editor con una de
+  ellas como muestra. Ajusta formato y calidad mirando el antes y el después, pasa de una
+  imagen a otra con las flechas y pulsa **Optimizar**: se procesan todas con los ajustes del
+  lado elegido (izquierdo o derecho) y se descarga un ZIP con la misma estructura de carpetas.
+  - _Tamaño máximo_ (ancho × alto): cada imagen se reduce proporcionalmente hasta caber; nunca
+    se amplía.
+  - _Conservar el original si ya pesa menos_: si al recodificar en el mismo formato el archivo
+    crece, se guarda el original.
+  - Se ignoran los archivos que no son imágenes y la basura de los compresores
+    (`__MACOSX/`, archivos ocultos, `Thumbs.db`).
+  - Se procesan entre 1 y 4 imágenes a la vez, según los núcleos y la memoria del dispositivo.
+- **Una imagen:** el editor de comparación de Squoosh, con MozJPEG, WebP, AVIF, JPEG XL,
+  OxiPNG, QOI, WebP2, redimensionado y reducción de paleta.
 
-To develop for Squoosh:
+## Desarrollo
 
-1. Clone the repository
-1. To install node packages, run:
-   ```sh
-   npm install
-   ```
-1. Then build the app by running:
-   ```sh
-   npm run build
-   ```
-1. After building, start the development server by running:
-   ```sh
-   npm run dev
-   ```
+```sh
+npm ci --ignore-scripts
+npm run dev      # http://localhost:5000
+npm run build    # genera build/
+```
 
-# Contributing
+Los códecs ya vienen compilados a WASM en `codecs/`; no hace falta Emscripten ni Rust salvo que
+se quiera recompilarlos.
 
-Squoosh is an open-source project that appreciates all community involvement. To contribute to the project, follow the [contribute guide](/CONTRIBUTING.md).
+### Código propio
 
-[squoosh]: https://squoosh.app
+| Ruta                                       | Qué                                                                        |
+| ------------------------------------------ | -------------------------------------------------------------------------- |
+| `src/client/lazy-app/batch/expand.ts`      | Lee ZIPs y archivos sueltos y devuelve la lista de imágenes                |
+| `src/client/lazy-app/batch/process.ts`     | Procesa el lote en paralelo y crea el ZIP de salida                        |
+| `src/client/lazy-app/Compress/BatchBar/`   | Barra del lote en el editor                                                |
+| `src/client/lazy-app/Compress/pipeline.ts` | Decodificar / procesar / comprimir (extraído del editor para reutilizarlo) |
+| `src/shared/prerendered-app/Intro/`        | Portada                                                                    |
+
+## Despliegue
+
+```sh
+./deploy.sh
+```
+
+Compila y copia `build/` a `~/docker/zumo/data/html`, que sirve el contenedor `zumo` (nginx) a
+través de Nginx Proxy Manager. El nginx envía `Cross-Origin-Opener-Policy` y
+`Cross-Origin-Embedder-Policy`, necesarias para los códecs multihilo. Tras desplegar, conviene
+purgar la caché de Cloudflare de `zumo.aminox.dev`.
+
+## Licencia
+
+Apache 2.0. zumo es un fork modificado de [Squoosh](https://github.com/GoogleChromeLabs/squoosh)
+(© Google): se han añadido el procesado por lotes con ZIP, una portada y una identidad nuevas, la
+interfaz en español y la analítica propia. Ver [LICENSE](LICENSE).

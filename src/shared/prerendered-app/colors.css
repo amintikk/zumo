@@ -1,31 +1,26 @@
 html {
-  --pink: #ff3385;
-  --hot-pink: #ff0066;
+  /* Names kept from upstream: "pink" is the left/primary accent (orange),
+     "blue" is the right/secondary accent (lime). */
+  --pink: #ff7a1a;
+  --hot-pink: #f25c05;
   --white: #fff;
   --black: #000;
-  --off-black: #1d1d1d;
-  --blue: #5fb4e4;
-  --dim-blue: #0a7bcc;
-  --deep-blue: #09f;
-  --light-blue: #76c8ff;
+  --off-black: #1f160d;
+  --blue: #a3e635;
+  --dim-blue: #4d7c0f;
+  --deep-blue: #65a30d;
+  --light-blue: #d9f99d;
   --less-light-gray: #bcbcbc;
   --medium-light-gray: #d1d1d1;
   --light-gray: #eaeaea;
   --dark-gray: #333;
-  --dim-text: #343a3e;
-  --dark-text: #142630;
+  --dim-text: #5b4636;
+  --dark-text: #2b1a0b;
+  --cream: #fff7ec;
+
+  --font-ui: ui-rounded, 'SF Pro Rounded', system-ui, -apple-system, 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, sans-serif;
 
   /* Old stuff: */
-  --button-fg: rgb(95, 180, 228);
-}
-
-@media (dynamic-range: high) {
-  @supports (color: oklch(0% 0 0)) {
-    html {
-      --pink: oklch(75% 0.3 3);
-      --hot-pink: oklch(65% 0.3 3);
-      --blue: oklch(75% 0.3 248);
-      --deep-blue: oklch(65% 0.3 248);
-    }
-  }
+  --button-fg: #ff7a1a;
 }

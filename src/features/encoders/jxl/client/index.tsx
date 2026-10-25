@@ -163,7 +163,7 @@ export class Options extends Component<Props, State> {
                   value={quality}
                   onInput={this._inputChange('quality', 'number')}
                 >
-                  Quality:
+                  Calidad:
                 </Range>
               </div>
               <label class={style.optionToggle}>

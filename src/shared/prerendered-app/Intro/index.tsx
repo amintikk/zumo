@@ -2,63 +2,17 @@ import { h, Component } from 'preact';
 
 import { linkRef } from 'shared/prerendered-app/util';
 import '../../custom-els/loading-spinner';
-import logo from 'url:./imgs/logo.svg';
-import githubLogo from 'url:./imgs/github-logo.svg';
-import largePhoto from 'url:./imgs/demos/demo-large-photo.jpg';
-import artwork from 'url:./imgs/demos/demo-artwork.jpg';
-import deviceScreen from 'url:./imgs/demos/demo-device-screen.png';
-import largePhotoIcon from 'url:./imgs/demos/icon-demo-large-photo.jpg';
-import artworkIcon from 'url:./imgs/demos/icon-demo-artwork.jpg';
-import deviceScreenIcon from 'url:./imgs/demos/icon-demo-device-screen.jpg';
-import smallSectionAsset from 'url:./imgs/info-content/small.svg';
-import simpleSectionAsset from 'url:./imgs/info-content/simple.svg';
-import secureSectionAsset from 'url:./imgs/info-content/secure.svg';
-import logoIcon from 'url:./imgs/demos/icon-demo-logo.png';
-import logoWithText from 'data-url-text:./imgs/logo-with-text.svg';
+import logo from 'url:./imgs/zumo-mark.svg';
 import * as style from './style.css';
 import type SnackBarElement from 'shared/custom-els/snack-bar';
 import 'shared/custom-els/snack-bar';
-import { startBlobs } from './blob-anim/meta';
 import SlideOnScroll from './SlideOnScroll';
 
-const demos = [
-  {
-    description: 'Large photo',
-    size: '2.8MB',
-    filename: 'photo.jpg',
-    url: largePhoto,
-    iconUrl: largePhotoIcon,
-  },
-  {
-    description: 'Artwork',
-    size: '2.9MB',
-    filename: 'art.jpg',
-    url: artwork,
-    iconUrl: artworkIcon,
-  },
-  {
-    description: 'Device screen',
-    size: '1.6MB',
-    filename: 'pixel3.png',
-    url: deviceScreen,
-    iconUrl: deviceScreenIcon,
-  },
-  {
-    description: 'SVG icon',
-    size: '13KB',
-    filename: 'squoosh.svg',
-    url: logo,
-    iconUrl: logoIcon,
-  },
-] as const;
-
-const blobAnimImport =
-  !__PRERENDER__ && matchMedia('(prefers-reduced-motion: reduce)').matches
-    ? undefined
-    : import('./blob-anim');
-const installButtonSource = 'introInstallButton-Purple';
 const supportsClipboardAPI =
   !__PRERENDER__ && navigator.clipboard && navigator.clipboard.read;
+
+const acceptedFiles =
+  'image/*,.zip,application/zip,application/x-zip-compressed,.avif,.jxl,.qoi,.wp2,.svg';
 
 async function getImageClipboardItem(
   items: ClipboardItem[],
@@ -69,44 +23,58 @@ async function getImageClipboardItem(
   }
 }
 
+const features = [
+  {
+    title: 'Lotes en un ZIP',
+    text: 'Sube un .zip con cientos de imágenes (con carpetas incluidas) y descárgalas todas optimizadas en otro .zip, con la misma estructura.',
+    icon: 'M20.5 7.3 12 2.5 3.5 7.3v9.4l8.5 4.8 8.5-4.8V7.3ZM12 4.8l5.9 3.3L12 11.4 6.1 8.1 12 4.8Zm-6.5 5 5.5 3.1v6.1l-5.5-3.1V9.8Zm7.5 9.2v-6.1l5.5-3.1v6.1L13 19Z',
+  },
+  {
+    title: 'Nada sale de tu equipo',
+    text: 'Todo se procesa en tu navegador con WebAssembly. Tus fotos no se suben a ningún servidor; funciona incluso sin conexión.',
+    icon: 'M12 1 3 5v6c0 5.6 3.8 10.7 9 12 5.2-1.3 9-6.4 9-12V5l-9-4Zm0 10.9h7c-.5 4.1-3.3 7.8-7 8.9V12H5V6.3l7-3.1v8.7Z',
+  },
+  {
+    title: 'Formatos modernos',
+    text: 'AVIF, WebP, JPEG XL, MozJPEG y OxiPNG. Compara el antes y el después con zoom y elige la mejor calidad para cada peso.',
+    icon: 'M21 3H3a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h18a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Zm0 16h-9V5h9v14ZM5 15l2.5-3.2 1.8 2.2 2.5-3.2V17H5v-2Z',
+  },
+];
+
+const steps = [
+  {
+    title: 'Suelta tu ZIP',
+    text: 'O selecciona varias imágenes a la vez.',
+  },
+  {
+    title: 'Ajusta con una muestra',
+    text: 'Elige formato y calidad mirando una imagen; puedes ir pasando entre todas.',
+  },
+  {
+    title: 'Descarga el lote',
+    text: 'Pulsa «Optimizar» y llévate un ZIP con todo más ligero.',
+  },
+];
+
 interface Props {
-  onFile?: (file: File) => void;
+  onFiles?: (files: File[]) => void;
   showSnack?: SnackBarElement['showSnackbar'];
 }
 interface State {
-  fetchingDemoIndex?: number;
   beforeInstallEvent?: BeforeInstallPromptEvent;
-  showBlobSVG: boolean;
 }
 
 export default class Intro extends Component<Props, State> {
-  state: State = {
-    showBlobSVG: true,
-  };
+  state: State = {};
   private fileInput?: HTMLInputElement;
-  private blobCanvas?: HTMLCanvasElement;
-  private installingViaButton = false;
 
   componentDidMount() {
-    // Listen for beforeinstallprompt events, indicating Squoosh is installable.
+    // Listen for beforeinstallprompt events, indicating the app is installable.
     window.addEventListener(
       'beforeinstallprompt',
       this.onBeforeInstallPromptEvent,
     );
-
-    // Listen for the appinstalled event, indicating Squoosh has been installed.
     window.addEventListener('appinstalled', this.onAppInstalled);
-
-    if (blobAnimImport) {
-      blobAnimImport.then((module) => {
-        this.setState(
-          {
-            showBlobSVG: false,
-          },
-          () => module.startBlobAnim(this.blobCanvas!),
-        );
-      });
-    }
   }
 
   componentWillUnmount() {
@@ -119,86 +87,30 @@ export default class Intro extends Component<Props, State> {
 
   private onFileChange = (event: Event): void => {
     const fileInput = event.target as HTMLInputElement;
-    const file = fileInput.files && fileInput.files[0];
-    if (!file) return;
-    this.fileInput!.value = '';
-    this.props.onFile!(file);
+    const files = fileInput.files ? Array.from(fileInput.files) : [];
+    if (files.length === 0) return;
+    fileInput.value = '';
+    this.props.onFiles!(files);
   };
 
   private onOpenClick = () => {
     this.fileInput!.click();
   };
 
-  private onDemoClick = async (index: number, event: Event) => {
-    try {
-      this.setState({ fetchingDemoIndex: index });
-      const demo = demos[index];
-      const blob = await fetch(demo.url).then((r) => r.blob());
-      const file = new File([blob], demo.filename, { type: blob.type });
-      this.props.onFile!(file);
-    } catch (err) {
-      this.setState({ fetchingDemoIndex: undefined });
-      this.props.showSnack!("Couldn't fetch demo image");
-    }
-  };
-
   private onBeforeInstallPromptEvent = (event: BeforeInstallPromptEvent) => {
     // Don't show the mini-infobar on mobile
     event.preventDefault();
-
-    // Save the beforeinstallprompt event so it can be called later.
     this.setState({ beforeInstallEvent: event });
-
-    // Log the event.
-    const gaEventInfo = {
-      eventCategory: 'pwa-install',
-      eventAction: 'promo-shown',
-      nonInteraction: true,
-    };
-    ga('send', 'event', gaEventInfo);
   };
 
-  private onInstallClick = async (event: Event) => {
-    // Get the deferred beforeinstallprompt event
+  private onInstallClick = async () => {
     const beforeInstallEvent = this.state.beforeInstallEvent;
-    // If there's no deferred prompt, bail.
     if (!beforeInstallEvent) return;
-
-    this.installingViaButton = true;
-
-    // Show the browser install prompt
     beforeInstallEvent.prompt();
-
-    // Wait for the user to accept or dismiss the install prompt
-    const { outcome } = await beforeInstallEvent.userChoice;
-    // Send the analytics data
-    const gaEventInfo = {
-      eventCategory: 'pwa-install',
-      eventAction: 'promo-clicked',
-      eventLabel: installButtonSource,
-      eventValue: outcome === 'accepted' ? 1 : 0,
-    };
-    ga('send', 'event', gaEventInfo);
-
-    // If the prompt was dismissed, we aren't going to install via the button.
-    if (outcome === 'dismissed') {
-      this.installingViaButton = false;
-    }
   };
 
   private onAppInstalled = () => {
-    // We don't need the install button, if it's shown
     this.setState({ beforeInstallEvent: undefined });
-
-    // Don't log analytics if page is not visible
-    if (document.hidden) return;
-
-    // Try to get the install, if it's not set, use 'browser'
-    const source = this.installingViaButton ? installButtonSource : 'browser';
-    ga('send', 'event', 'pwa-install', 'installed', source);
-
-    // Clear the install method property
-    this.installingViaButton = false;
   };
 
   private onPasteClick = async () => {
@@ -207,257 +119,137 @@ export default class Intro extends Component<Props, State> {
     try {
       clipboardItems = await navigator.clipboard.read();
     } catch (err) {
-      this.props.showSnack!(`No permission to access clipboard`);
+      this.props.showSnack!('Sin permiso para leer el portapapeles');
       return;
     }
 
     const blob = await getImageClipboardItem(clipboardItems);
 
     if (!blob) {
-      this.props.showSnack!(`No image found in the clipboard`);
+      this.props.showSnack!('No hay ninguna imagen en el portapapeles');
       return;
     }
 
-    this.props.onFile!(new File([blob], 'image.unknown'));
+    this.props.onFiles!([new File([blob], 'imagen.unknown')]);
   };
 
-  render(
-    {}: Props,
-    { fetchingDemoIndex, beforeInstallEvent, showBlobSVG }: State,
-  ) {
+  render({}: Props, { beforeInstallEvent }: State) {
     return (
       <div class={style.intro}>
         <input
           class={style.hide}
           ref={linkRef(this, 'fileInput')}
           type="file"
+          multiple
+          accept={acceptedFiles}
           onChange={this.onFileChange}
         />
-        <div class={style.main}>
-          {!__PRERENDER__ && (
-            <canvas
-              ref={linkRef(this, 'blobCanvas')}
-              class={style.blobCanvas}
-            />
+
+        <header class={style.topBar}>
+          <a class={style.brand} href="/">
+            <img src={logo} alt="" width="34" height="34" />
+            <span>zumo</span>
+          </a>
+          {beforeInstallEvent && (
+            <button class={style.installBtn} onClick={this.onInstallClick}>
+              Instalar app
+            </button>
           )}
-          <h1 class={style.logoContainer}>
-            <img
-              class={style.logo}
-              src={logoWithText}
-              alt="Squoosh"
-              width="539"
-              height="162"
-            />
-          </h1>
-          <div class={style.loadImg}>
-            {showBlobSVG && (
-              <svg
-                class={style.blobSvg}
-                viewBox="-1.25 -1.25 2.5 2.5"
-                preserveAspectRatio="xMidYMid slice"
-              >
-                {startBlobs.map((points) => (
-                  <path
-                    d={points
-                      .map((point, i) => {
-                        const nextI = i === points.length - 1 ? 0 : i + 1;
-                        let d = '';
-                        if (i === 0) {
-                          d += `M${point[2]} ${point[3]}`;
-                        }
-                        return (
-                          d +
-                          `C${point[4]} ${point[5]} ${points[nextI][0]} ${points[nextI][1]} ${points[nextI][2]} ${points[nextI][3]}`
-                        );
-                      })
-                      .join('')}
-                  />
-                ))}
-              </svg>
-            )}
-            <div
-              class={style.loadImgContent}
-              style={{ visibility: __PRERENDER__ ? 'hidden' : '' }}
-            >
-              <button class={style.loadBtn} onClick={this.onOpenClick}>
-                <svg viewBox="0 0 24 24" class={style.loadIcon}>
-                  <path d="M19 7v3h-2V7h-3V5h3V2h2v3h3v2h-3zm-3 4V8h-3V5H5a2 2 0 00-2 2v12c0 1.1.9 2 2 2h12a2 2 0 002-2v-8h-3zM5 19l3-4 2 3 3-4 4 5H5z" />
-                </svg>
-              </button>
-              <div>
-                <span class={style.dropText}>Drop </span>OR{' '}
-                {supportsClipboardAPI ? (
-                  <button class={style.pasteBtn} onClick={this.onPasteClick}>
-                    Paste
-                  </button>
-                ) : (
-                  'Paste'
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class={style.demosContainer}>
-          <svg viewBox="0 0 1920 140" class={style.topWave}>
-            <path
-              d="M1920 0l-107 28c-106 29-320 85-533 93-213 7-427-36-640-50s-427 0-533 7L0 85v171h1920z"
-              class={style.subWave}
-            />
-            <path
-              d="M0 129l64-26c64-27 192-81 320-75 128 5 256 69 384 64 128-6 256-80 384-91s256 43 384 70c128 26 256 26 320 26h64v96H0z"
-              class={style.mainWave}
-            />
-          </svg>
-          <div class={style.contentPadding}>
-            <p class={style.demoTitle}>
-              Or <strong>try one</strong> of these:
+        </header>
+
+        <main class={style.hero}>
+          <div class={style.heroText}>
+            <h1 class={style.heroTitle}>
+              Exprime tus <span class={style.highlight}>imágenes</span>.
+            </h1>
+            <p class={style.heroLead}>
+              Optimiza fotos una a una o <strong>a cientos con un ZIP</strong>.
+              Más ligeras, misma pinta, y sin subirlas a ningún sitio.
             </p>
-            <ul class={style.demos}>
-              {demos.map((demo, i) => (
-                <li>
-                  <button
-                    class="unbutton"
-                    onClick={(event) => this.onDemoClick(i, event)}
-                  >
-                    <div class={style.demoContainer}>
-                      <div class={style.demoIconContainer}>
-                        <img
-                          class={style.demoIcon}
-                          src={demo.iconUrl}
-                          alt={demo.description}
-                        />
-                        {fetchingDemoIndex === i && (
-                          <div class={style.demoLoader}>
-                            <loading-spinner />
-                          </div>
-                        )}
-                      </div>
-                      <div class={style.demoSize}>{demo.size}</div>
-                    </div>
-                  </button>
-                </li>
-              ))}
+            <ul class={style.badges}>
+              <li>JPG · PNG · WebP · AVIF · JXL</li>
+              <li>100 % en tu navegador</li>
+              <li>Gratis</li>
             </ul>
           </div>
-        </div>
 
-        <div class={style.bottomWave}>
-          <svg viewBox="0 0 1920 79" class={style.topWave}>
-            <path
-              d="M0 59l64-11c64-11 192-34 320-43s256-5 384 4 256 23 384 34 256 21 384 14 256-30 320-41l64-11v94H0z"
-              class={style.infoWave}
+          <div class={style.dropCard}>
+            <img
+              class={style.dropLogo}
+              src={logo}
+              alt=""
+              width="96"
+              height="96"
             />
-          </svg>
-        </div>
-
-        <section class={style.info}>
-          <div class={style.infoContainer}>
-            <SlideOnScroll>
-              <div class={style.infoContent}>
-                <div class={style.infoTextWrapper}>
-                  <h2 class={style.infoTitle}>Small</h2>
-                  <p class={style.infoCaption}>
-                    Smaller images mean faster load times. Squoosh can reduce
-                    file size and maintain high quality.
-                  </p>
-                </div>
-                <div class={style.infoImgWrapper}>
-                  <img
-                    class={style.infoImg}
-                    src={smallSectionAsset}
-                    alt="silhouette of a large 1.4 megabyte image shrunk into a smaller 80 kilobyte image"
-                    width="536"
-                    height="522"
-                  />
-                </div>
-              </div>
-            </SlideOnScroll>
+            <p class={style.dropTitle}>
+              <span class={style.dropText}>
+                Arrastra aquí tus imágenes o un{' '}
+              </span>
+              <span class={style.tapText}>Elige imágenes o un </span>
+              <code>.zip</code>
+            </p>
+            <button
+              class={style.primaryBtn}
+              onClick={this.onOpenClick}
+              disabled={__PRERENDER__}
+            >
+              Elegir archivos
+            </button>
+            {supportsClipboardAPI && (
+              <button class={style.pasteBtn} onClick={this.onPasteClick}>
+                o pegar del portapapeles
+              </button>
+            )}
+            <p class={style.dropNote}>
+              Puedes seleccionar varias imágenes a la vez.
+            </p>
           </div>
+        </main>
+
+        <section class={style.section}>
+          <ul class={style.features}>
+            {features.map((feature) => (
+              <li>
+                <SlideOnScroll>
+                  <div class={style.feature}>
+                    <svg viewBox="0 0 24 24" class={style.featureIcon}>
+                      <path d={feature.icon} />
+                    </svg>
+                    <h2 class={style.featureTitle}>{feature.title}</h2>
+                    <p class={style.featureText}>{feature.text}</p>
+                  </div>
+                </SlideOnScroll>
+              </li>
+            ))}
+          </ul>
         </section>
 
-        <section class={style.info}>
-          <div class={style.infoContainer}>
-            <SlideOnScroll>
-              <div class={style.infoContent}>
-                <div class={style.infoTextWrapper}>
-                  <h2 class={style.infoTitle}>Simple</h2>
-                  <p class={style.infoCaption}>
-                    Open your image, inspect the differences, then save
-                    instantly. Feeling adventurous? Adjust the settings for even
-                    smaller files.
-                  </p>
+        <section class={style.section}>
+          <h2 class={style.sectionTitle}>Cómo funciona</h2>
+          <ol class={style.steps}>
+            {steps.map((step, i) => (
+              <li class={style.step}>
+                <span class={style.stepNumber}>{i + 1}</span>
+                <div>
+                  <h3 class={style.stepTitle}>{step.title}</h3>
+                  <p class={style.stepText}>{step.text}</p>
                 </div>
-                <div class={style.infoImgWrapper}>
-                  <img
-                    class={style.infoImg}
-                    src={simpleSectionAsset}
-                    alt="grid of multiple shrunk images displaying various options"
-                    width="538"
-                    height="384"
-                  />
-                </div>
-              </div>
-            </SlideOnScroll>
-          </div>
-        </section>
-
-        <section class={style.info}>
-          <div class={style.infoContainer}>
-            <SlideOnScroll>
-              <div class={style.infoContent}>
-                <div class={style.infoTextWrapper}>
-                  <h2 class={style.infoTitle}>Secure</h2>
-                  <p class={style.infoCaption}>
-                    Worried about privacy? Images never leave your device since
-                    Squoosh does all the work locally.
-                  </p>
-                </div>
-                <div class={style.infoImgWrapper}>
-                  <img
-                    class={style.infoImg}
-                    src={secureSectionAsset}
-                    alt="silhouette of a cloud with a 'no' symbol on top"
-                    width="498"
-                    height="333"
-                  />
-                </div>
-              </div>
-            </SlideOnScroll>
-          </div>
+              </li>
+            ))}
+          </ol>
         </section>
 
         <footer class={style.footer}>
-          <div class={style.footerContainer}>
-            <svg viewBox="0 0 1920 79" class={style.topWave}>
-              <path
-                d="M0 59l64-11c64-11 192-34 320-43s256-5 384 4 256 23 384 34 256 21 384 14 256-30 320-41l64-11v94H0z"
-                class={style.footerWave}
-              />
-            </svg>
-            <div class={style.footerPadding}>
-              <footer class={style.footerItems}>
-                <a
-                  class={style.footerLink}
-                  href="https://github.com/GoogleChromeLabs/squoosh/blob/dev/README.md#privacy"
-                >
-                  Privacy
-                </a>
-                <a
-                  class={style.footerLinkWithLogo}
-                  href="https://github.com/GoogleChromeLabs/squoosh"
-                >
-                  <img src={githubLogo} alt="" width="10" height="10" />
-                  Source on Github
-                </a>
-              </footer>
-            </div>
-          </div>
+          <span>
+            <strong>zumo</strong> · Basado en{' '}
+            <a href="https://github.com/GoogleChromeLabs/squoosh">Squoosh</a>{' '}
+            (Apache 2.0)
+          </span>
+          <span>
+            Tus imágenes nunca salen de tu dispositivo. Solo medimos visitas de
+            forma anónima.
+          </span>
         </footer>
-        {beforeInstallEvent && (
-          <button class={style.installBtn} onClick={this.onInstallClick}>
-            Install
-          </button>
-        )}
       </div>
     );
   }

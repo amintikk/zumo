@@ -2,16 +2,7 @@ import { h, Component } from 'preact';
 
 import * as style from './style.css';
 import 'add-css:./style.css';
-import {
-  blobToImg,
-  blobToText,
-  builtinDecode,
-  sniffMimeType,
-  canDecodeImageType,
-  abortable,
-  assertSignal,
-  ImageMimeTypes,
-} from '../util';
+import { assertSignal } from '../util';
 import {
   PreprocessorState,
   ProcessorState,
@@ -29,9 +20,17 @@ import { cleanMerge, cleanSet } from '../util/clean-modify';
 import './custom-els/MultiPanel';
 import Results from './Results';
 import WorkerBridge from '../worker-bridge';
-import { resize } from 'features/processors/resize/client';
 import type SnackBarElement from 'shared/custom-els/snack-bar';
 import { drawableToImageData } from '../util/canvas';
+import {
+  decodeImage,
+  preprocessImage,
+  processImage,
+  compressImage,
+  processSvg,
+} from './pipeline';
+import BatchBar from './BatchBar';
+import type { BatchEntry } from '../batch/expand';
 
 export type OutputType = EncoderType | 'identity';
 
@@ -42,7 +41,7 @@ export interface SourceImage {
   vectorImage?: HTMLImageElement;
 }
 
-interface SideSettings {
+export interface SideSettings {
   processorState: ProcessorState;
   encoderState?: EncoderState;
 }
@@ -57,8 +56,15 @@ interface Side {
   loading: boolean;
 }
 
+export interface Batch {
+  entries: BatchEntry[];
+  name: string;
+}
+
 interface Props {
   file: File;
+  /** Present when several images were opened at once (ZIP or multi-select) */
+  batch?: Batch;
   showSnack: SnackBarElement['showSnackbar'];
   onBack: () => void;
 }
@@ -71,6 +77,8 @@ interface State {
   mobileView: boolean;
   preprocessorState: PreprocessorState;
   encodedPreprocessorState?: PreprocessorState;
+  /** Which batch entry is shown in the editor */
+  previewIndex: number;
 }
 
 interface MainJob {
@@ -86,112 +94,6 @@ interface SideJob {
 interface LoadingFileInfo {
   loading: boolean;
   filename?: string;
-}
-
-async function decodeImage(
-  signal: AbortSignal,
-  blob: Blob,
-  workerBridge: WorkerBridge,
-): Promise<ImageData> {
-  assertSignal(signal);
-  const mimeType = await abortable(signal, sniffMimeType(blob));
-  const canDecode = await abortable(signal, canDecodeImageType(mimeType));
-
-  try {
-    if (!canDecode) {
-      if (mimeType === 'image/avif') {
-        return await workerBridge.avifDecode(signal, blob);
-      }
-      if (mimeType === 'image/webp') {
-        return await workerBridge.webpDecode(signal, blob);
-      }
-      if (mimeType === 'image/jxl') {
-        return await workerBridge.jxlDecode(signal, blob);
-      }
-      if (mimeType === 'image/webp2') {
-        return await workerBridge.wp2Decode(signal, blob);
-      }
-      if (mimeType === 'image/qoi') {
-        return await workerBridge.qoiDecode(signal, blob);
-      }
-    }
-    // Otherwise fall through and try built-in decoding for a laugh.
-    return await builtinDecode(signal, blob);
-  } catch (err) {
-    if (err instanceof Error && err.name === 'AbortError') throw err;
-    console.log(err);
-    throw Error("Couldn't decode image");
-  }
-}
-
-async function preprocessImage(
-  signal: AbortSignal,
-  data: ImageData,
-  preprocessorState: PreprocessorState,
-  workerBridge: WorkerBridge,
-): Promise<ImageData> {
-  assertSignal(signal);
-  let processedData = data;
-
-  if (preprocessorState.rotate.rotate !== 0) {
-    processedData = await workerBridge.rotate(
-      signal,
-      processedData,
-      preprocessorState.rotate,
-    );
-  }
-
-  return processedData;
-}
-
-async function processImage(
-  signal: AbortSignal,
-  source: SourceImage,
-  processorState: ProcessorState,
-  workerBridge: WorkerBridge,
-): Promise<ImageData> {
-  assertSignal(signal);
-  let result = source.preprocessed;
-
-  if (processorState.resize.enabled) {
-    result = await resize(signal, source, processorState.resize, workerBridge);
-  }
-  if (processorState.quantize.enabled) {
-    result = await workerBridge.quantize(
-      signal,
-      result,
-      processorState.quantize,
-    );
-  }
-  return result;
-}
-
-async function compressImage(
-  signal: AbortSignal,
-  image: ImageData,
-  encodeData: EncoderState,
-  sourceFilename: string,
-  workerBridge: WorkerBridge,
-): Promise<File> {
-  assertSignal(signal);
-
-  const encoder = encoderMap[encodeData.type];
-  const compressedData = await encoder.encode(
-    signal,
-    workerBridge,
-    image,
-    // The type of encodeData.options is enforced via the previous line
-    encodeData.options as any,
-  );
-
-  // This type ensures the image mimetype is consistent with our mimetype sniffer
-  const type: ImageMimeTypes = encoder.meta.mimeType;
-
-  return new File(
-    [compressedData],
-    sourceFilename.replace(/.[^.]*$/, `.${encoder.meta.extension}`),
-    { type },
-  );
 }
 
 function stateForNewSourceData(state: State): State {
@@ -212,38 +114,6 @@ function stateForNewSourceData(state: State): State {
   }
 
   return newState;
-}
-
-async function processSvg(
-  signal: AbortSignal,
-  blob: Blob,
-): Promise<HTMLImageElement> {
-  assertSignal(signal);
-  // Firefox throws if you try to draw an SVG to canvas that doesn't have width/height.
-  // In Chrome it loads, but drawImage behaves weirdly.
-  // This function sets width/height if it isn't already set.
-  const parser = new DOMParser();
-  const text = await abortable(signal, blobToText(blob));
-  const document = parser.parseFromString(text, 'image/svg+xml');
-  const svg = document.documentElement!;
-
-  if (svg.hasAttribute('width') && svg.hasAttribute('height')) {
-    return blobToImg(blob);
-  }
-
-  const viewBox = svg.getAttribute('viewBox');
-  if (viewBox === null) throw Error('SVG must have width/height or viewBox');
-
-  const viewboxParts = viewBox.split(/\s+/);
-  svg.setAttribute('width', viewboxParts[2]);
-  svg.setAttribute('height', viewboxParts[3]);
-
-  const serializer = new XMLSerializer();
-  const newSource = serializer.serializeToString(document);
-  return abortable(
-    signal,
-    blobToImg(new Blob([newSource], { type: 'image/svg+xml' })),
-  );
 }
 
 /**
@@ -315,6 +185,7 @@ export default class Compress extends Component<Props, State> {
           },
     ],
     mobileView: this.widthQuery.matches,
+    previewIndex: 0,
   };
 
   private readonly encodeCache = new ResultCache();
@@ -384,6 +255,7 @@ export default class Compress extends Component<Props, State> {
   componentWillReceiveProps(nextProps: Props): void {
     if (nextProps.file !== this.props.file) {
       this.sourceFile = nextProps.file;
+      this.setState({ previewIndex: 0 });
       this.queueUpdateImage({ immediate: true });
     }
   }
@@ -416,6 +288,14 @@ export default class Compress extends Component<Props, State> {
     this.queueUpdateImage();
   }
 
+  private onPreviewChange = (previewIndex: number): void => {
+    const batch = this.props.batch;
+    if (!batch || previewIndex === this.state.previewIndex) return;
+    this.setState({ previewIndex });
+    this.sourceFile = batch.entries[previewIndex].file;
+    this.queueUpdateImage({ immediate: true });
+  };
+
   private onCopyToOtherClick = async (index: 0 | 1) => {
     const otherIndex = index ? 0 : 1;
     const oldSettings = this.state.sides[otherIndex];
@@ -431,12 +311,12 @@ export default class Compress extends Component<Props, State> {
       sides: cleanSet(this.state.sides, otherIndex, newSettings),
     });
 
-    const result = await this.props.showSnack('Settings copied across', {
+    const result = await this.props.showSnack('Ajustes copiados al otro lado', {
       timeout: 5000,
-      actions: ['undo', 'dismiss'],
+      actions: ['deshacer', 'cerrar'],
     });
 
-    if (result !== 'undo') return;
+    if (result !== 'deshacer') return;
 
     this.setState({
       sides: cleanSet(this.state.sides, otherIndex, oldSettings),
@@ -457,9 +337,9 @@ export default class Compress extends Component<Props, State> {
       localStorage.setItem('leftSideSettings', leftSideSettings);
       // Firing an event when we save side settings in localstorage
       window.dispatchEvent(new CustomEvent('leftSideSettings'));
-      await this.props.showSnack('Left side settings saved', {
+      await this.props.showSnack('Ajustes del lado izquierdo guardados', {
         timeout: 1500,
-        actions: ['dismiss'],
+        actions: ['cerrar'],
       });
       return;
     }
@@ -472,9 +352,9 @@ export default class Compress extends Component<Props, State> {
       localStorage.setItem('rightSideSettings', rightSideSettings);
       // Firing an event when we save side settings in localstorage
       window.dispatchEvent(new CustomEvent('rightSideSettings'));
-      await this.props.showSnack('Right side settings saved', {
+      await this.props.showSnack('Ajustes del lado derecho guardados', {
         timeout: 1500,
-        actions: ['dismiss'],
+        actions: ['cerrar'],
       });
       return;
     }
@@ -499,11 +379,14 @@ export default class Compress extends Component<Props, State> {
       this.setState({
         sides: cleanSet(this.state.sides, index, newLeftSideSettings),
       });
-      const result = await this.props.showSnack('Left side settings imported', {
-        timeout: 3000,
-        actions: ['undo', 'dismiss'],
-      });
-      if (result === 'undo') {
+      const result = await this.props.showSnack(
+        'Ajustes del lado izquierdo cargados',
+        {
+          timeout: 3000,
+          actions: ['deshacer', 'cerrar'],
+        },
+      );
+      if (result === 'deshacer') {
         this.setState({
           sides: cleanSet(this.state.sides, index, oldLeftSideSettings),
         });
@@ -521,13 +404,13 @@ export default class Compress extends Component<Props, State> {
         sides: cleanSet(this.state.sides, index, newRightSideSettings),
       });
       const result = await this.props.showSnack(
-        'Right side settings imported',
+        'Ajustes del lado derecho cargados',
         {
           timeout: 3000,
-          actions: ['undo', 'dismiss'],
+          actions: ['deshacer', 'cerrar'],
         },
       );
-      if (result === 'undo') {
+      if (result === 'deshacer') {
         this.setState({
           sides: cleanSet(this.state.sides, index, oldRightSideSettings),
         });
@@ -724,7 +607,7 @@ export default class Compress extends Component<Props, State> {
         });
       } catch (err) {
         if (err instanceof Error && err.name === 'AbortError') return;
-        this.props.showSnack(`Source decoding error: ${err}`);
+        this.props.showSnack(`No se pudo leer la imagen: ${err}`);
         throw err;
       }
     } else {
@@ -783,7 +666,7 @@ export default class Compress extends Component<Props, State> {
       } catch (err) {
         if (err instanceof Error && err.name === 'AbortError') return;
         this.setState({ loading: false });
-        this.props.showSnack(`Preprocessing error: ${err}`);
+        this.props.showSnack(`Error al preparar la imagen: ${err}`);
         throw err;
       }
     } else {
@@ -912,15 +795,22 @@ export default class Compress extends Component<Props, State> {
           });
           return { sides };
         });
-        this.props.showSnack(`Processing error: ${err}`);
+        this.props.showSnack(`Error al procesar: ${err}`);
         throw err;
       }
     });
   }
 
   render(
-    { onBack }: Props,
-    { loading, sides, source, mobileView, preprocessorState }: State,
+    { onBack, batch, showSnack }: Props,
+    {
+      loading,
+      sides,
+      source,
+      mobileView,
+      preprocessorState,
+      previewIndex,
+    }: State,
   ) {
     const [leftSide, rightSide] = sides;
     const [leftImageData, rightImageData] = sides.map((i) => i.data);
@@ -951,7 +841,7 @@ export default class Compress extends Component<Props, State> {
         typeLabel={
           side.latestSettings.encoderState
             ? encoderMap[side.latestSettings.encoderState.type].meta.label
-            : `${side.file ? `${side.file.name}` : 'Original Image'}`
+            : `${side.file ? `${side.file.name}` : 'Imagen original'}`
         }
       />
     ));
@@ -983,7 +873,7 @@ export default class Compress extends Component<Props, State> {
         />
         <button class={style.back} onClick={onBack}>
           <svg viewBox="0 0 61 53.3">
-            <title>Back</title>
+            <title>Volver</title>
             <path
               class={style.backBlob}
               d="M0 25.6c-.5-7.1 4.1-14.5 10-19.1S23.4.1 32.2 0c8.8 0 19 1.6 24.4 8s5.6 17.8 1.7 27a29.7 29.7 0 01-20.5 18c-8.4 1.5-17.3-2.6-24.5-8S.5 32.6.1 25.6z"
@@ -994,6 +884,17 @@ export default class Compress extends Component<Props, State> {
             />
           </svg>
         </button>
+        {batch && (
+          <BatchBar
+            entries={batch.entries}
+            name={batch.name}
+            previewIndex={previewIndex}
+            onPreviewChange={this.onPreviewChange}
+            settings={[leftSide.latestSettings, rightSide.latestSettings]}
+            mobileView={mobileView}
+            showSnack={showSnack}
+          />
+        )}
         {mobileView ? (
           <div class={style.options}>
             <multi-panel class={style.multiPanel} open-one-only>

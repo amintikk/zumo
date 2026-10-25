@@ -222,7 +222,7 @@ export class Options extends Component<Props, State> {
             value={options.quality}
             onInput={this.onChange}
           >
-            Quality:
+            Calidad:
           </Range>
         </div>
         <label class={style.optionReveal}>
@@ -230,7 +230,7 @@ export class Options extends Component<Props, State> {
             checked={showAdvanced}
             onChange={linkState(this, 'showAdvanced')}
           />
-          Advanced settings
+          Ajustes avanzados
         </label>
         <Expander>
           {showAdvanced ? (
@@ -251,7 +251,7 @@ export class Options extends Component<Props, State> {
                   value={options.alpha_quality}
                   onInput={this.onChange}
                 >
-                  Alpha quality:
+                  Calidad del alfa:
                 </Range>
               </div>
               <div class={style.optionOneCell}>
