@@ -24,7 +24,13 @@ import {
 import { Icon } from 'shared/icons';
 import { S } from 'shared/strings';
 import { track } from 'shared/analytics';
-import { formatBytes, formatNames, savings, mainFormats } from './format';
+import {
+  formatBytes,
+  formatNames,
+  savings,
+  mainFormats,
+  percent as formatPercent,
+} from './format';
 
 /** Formats whose feature test passes in this browser */
 const supportedFormatsP: Promise<EncoderType[]> = Promise.all(
@@ -589,7 +595,7 @@ export default class Sidebar extends Component<Props, State> {
                         size={11}
                         weight={2.8}
                       />
-                      {Math.abs(percent)} %
+                      {formatPercent(Math.abs(percent))}
                     </span>
                   )}
                 </button>

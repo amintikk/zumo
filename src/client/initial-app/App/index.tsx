@@ -77,6 +77,8 @@ export default class App extends Component<Props, State> {
     });
 
     window.addEventListener('popstate', this.onPopState);
+    // Every string comes from the dictionary: redraw everything
+    window.addEventListener('zumo:lang', () => this.forceUpdate());
   }
 
   private onFileDrop = ({ files }: FileDropEvent) => {

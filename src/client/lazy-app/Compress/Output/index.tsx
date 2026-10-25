@@ -25,6 +25,8 @@ interface Props {
   onPreprocessorChange: (newState: PreprocessorState) => void;
   /** Rotation only affects the preview, so batches hide it */
   hideRotate?: boolean;
+  /** Only here so a language change redraws the toolbar */
+  lang?: string;
 }
 
 interface State {

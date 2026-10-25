@@ -28,7 +28,7 @@ import {
 } from './pipeline';
 import Sidebar from './Sidebar';
 import { Icon } from 'shared/icons';
-import { S } from 'shared/strings';
+import { S, lang } from 'shared/strings';
 import { formatBytes, formatNames, mainFormats } from './Sidebar/format';
 import type { BatchEntry } from '../batch/expand';
 
@@ -748,6 +748,7 @@ export default class Compress extends Component<Props, State> {
             preprocessorState={preprocessorState}
             onPreprocessorChange={this.onPreprocessorChange}
             hideRotate={!!batch}
+            lang={lang}
           />
           <span class={`${style.stageLabel} ${style.stageLabelStart} glass`}>
             {S.editor.original}

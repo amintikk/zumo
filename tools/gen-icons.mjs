@@ -49,6 +49,10 @@ const wanted = {
   scan: 'scan',
   search: 'zoom-in',
   'search-minus': 'zoom-out',
+  sun: 'sun',
+  moon: 'moon',
+  'monitor-down': 'monitor-down',
+  share: 'share',
 };
 const out = {};
 for (const [name, file] of Object.entries(wanted)) {

@@ -4,7 +4,7 @@ import * as style from './doc.css';
 import initialCss from 'initial-css:';
 import logo from 'url:shared/prerendered-app/Intro/imgs/zumo-icon.svg';
 import Head from '../head';
-import { S, lang } from 'shared/strings';
+import { S, lang, dictionaries, Lang } from 'shared/strings';
 
 const Privacy: FunctionalComponent = () => (
   <html lang={lang}>
@@ -25,19 +25,25 @@ const Privacy: FunctionalComponent = () => (
           zumo
         </a>
       </header>
-      <main class={`${style.wrap} ${style.doc}`}>
-        <h1 class={style.h1}>{S.privacy.title}</h1>
-        <p class={style.updated}>{S.privacy.updated}</p>
-        {S.privacy.sections.map((section) => (
-          <section class={style.section}>
-            <h2 class={style.h2}>{section.title}</h2>
-            <p>{section.text}</p>
-          </section>
-        ))}
-        <a class={`btn btn-tinted ${style.back}`} href="/">
-          {S.privacy.back}
-        </a>
-      </main>
+      {(Object.keys(dictionaries) as Lang[]).map((docLang) => {
+        const T = dictionaries[docLang];
+        // Both languages are in the page; CSS shows the one in <html lang>
+        return (
+          <main class={`${style.wrap} ${style.doc}`} lang={docLang}>
+            <h1 class={style.h1}>{T.privacy.title}</h1>
+            <p class={style.updated}>{T.privacy.updated}</p>
+            {T.privacy.sections.map((section) => (
+              <section class={style.section}>
+                <h2 class={style.h2}>{section.title}</h2>
+                <p>{section.text}</p>
+              </section>
+            ))}
+            <a class={`btn btn-tinted ${style.back}`} href="/">
+              {T.privacy.back}
+            </a>
+          </main>
+        );
+      })}
     </body>
   </html>
 );

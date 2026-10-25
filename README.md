@@ -40,7 +40,10 @@ colores del sistema con el naranja de zumo como `--tint`, modo claro y oscuro, i
 - `src/shared/prerendered-app/ui.css` — componentes compartidos: cristal, botones, interruptor,
   listas agrupadas, pastillas, campos, spinner, luz ambiente, aparición al hacer scroll.
 - `src/shared/icons/` — iconos de Lucide como componente `Icon` (añadir: `tools/gen-icons.mjs`).
-- `src/shared/strings.ts` — todos los textos, en un diccionario por idioma.
+- `src/shared/strings.ts` — todos los textos en español e inglés (mismas claves). El idioma se
+  elige con el botón ES/EN o según el del navegador, y cambia en caliente con `setLang()`.
+- `src/shared/theme.ts` — modo claro/oscuro: sigue al sistema hasta que se elige uno a mano.
+  Un script en `<head>` aplica el tema y el idioma guardados antes de pintar.
 - La analítica solo se carga si se acepta en el aviso de privacidad (`src/shared/analytics.ts`).
 
 ## Desarrollo

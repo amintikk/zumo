@@ -85,21 +85,148 @@ main.wrap {
   }
 }
 
-.nav-end {
+/* Theme, install and language */
+.actions {
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 8px;
 }
 
-.nav-link {
-  color: var(--label-2);
-  font-size: 14.5px;
-  text-decoration: none;
-  transition: color 0.2s;
+.action {
+  width: 38px;
+  height: 38px;
+  color: var(--label);
+  background: var(--glass-strong);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: inset 0 0 0 0.5px var(--glass-edge), var(--glass-shadow);
+  transition: background-color var(--dur-fast),
+    transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast);
 
-  &:hover {
-    color: var(--label);
+  @media (hover: hover) {
+    &:hover {
+      background: var(--bg-2);
+    }
+  }
+}
+
+/* Sun and moon swap with a turn */
+.theme-icon {
+  position: relative;
+  display: grid;
+  width: 18px;
+  height: 18px;
+
+  & svg {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    transition: transform 520ms var(--ease), opacity 260ms var(--ease-out);
+  }
+}
+
+.sun {
+  transform: none;
+  opacity: 1;
+}
+
+.moon {
+  transform: rotate(-90deg) scale(0.4);
+  opacity: 0;
+}
+
+.is-dark .sun {
+  transform: rotate(90deg) scale(0.4);
+  opacity: 0;
+}
+
+.is-dark .moon {
+  transform: none;
+  opacity: 1;
+}
+
+/* Language code flips when it changes */
+.lang-code {
+  font: 700 12.5px/1 var(--font-rounded);
+  letter-spacing: 0.02em;
+  animation: flip-in 480ms var(--ease) both;
+}
+
+@keyframes flip-in {
+  from {
+    transform: perspective(200px) rotateX(-90deg);
+    opacity: 0;
+  }
+}
+
+.install-wrap {
+  position: relative;
+}
+
+/* Opaque, like every menu that covers content */
+.install-sheet {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 10px);
+  right: -46px;
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 18px;
+  border-radius: 20px;
+  background: var(--bg-2);
+  box-shadow: inset 0 0 0 0.5px var(--glass-edge), var(--shadow-pop);
+  transform-origin: calc(100% - 65px) -8px;
+  animation: sheet-pop 420ms cubic-bezier(0.2, 0.9, 0.25, 1.08) both;
+
+  & p {
+    margin: 0;
+    font: var(--callout);
+    color: var(--label-2);
+  }
+
+  & .btn {
+    margin-top: 6px;
+  }
+}
+
+@keyframes sheet-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-6px);
+  }
+}
+
+.sheet-title {
+  margin: 6px 0 0;
+  font: var(--title3);
+  letter-spacing: var(--track-display);
+}
+
+.sheet-step {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  color: var(--label) !important;
+
+  & svg {
+    flex: none;
+    margin-top: 1px;
+    color: var(--blue);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-icon svg {
+    transition: opacity var(--dur-fast);
+  }
+
+  .lang-code,
+  .install-sheet {
+    animation: none;
   }
 }
 
@@ -161,7 +288,8 @@ main.wrap {
   text-align: center;
   padding: 44px 28px 30px;
   border-radius: 28px;
-  transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+  transition: transform var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
 
   :global(.drop-valid) & {
     transform: scale(1.02);

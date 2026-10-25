@@ -141,14 +141,10 @@
   left: 2px;
   width: calc((100% - 4px) / var(--n));
   border-radius: 7px;
-  background: var(--bg-2);
+  background: var(--seg-knob);
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12), 0 1px 1px rgba(0, 0, 0, 0.04);
   transform: translateX(calc(var(--i) * 100%));
   transition: transform var(--dur) var(--ease);
-
-  @media (prefers-color-scheme: dark) {
-    background: #636366;
-  }
 }
 
 .seg-button {

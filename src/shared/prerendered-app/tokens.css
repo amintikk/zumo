@@ -90,10 +90,59 @@ html {
 
   /* Image viewer backdrop */
   --canvas: #e9e9ee;
+
+  --seg-knob: var(--bg-2);
+  --ambient-1: 0.5;
+  --ambient-2: 0.4;
+  --ambient-3: 0.35;
+}
+
+/* Dark: when chosen by hand, or when the system is dark and the person
+   hasn't forced light. The two blocks must stay identical. */
+html[data-theme='dark'] {
+  color-scheme: dark;
+  --blue: #0a84ff;
+  --green: #30d158;
+  --red: #ff453a;
+  --orange: #ff9f0a;
+  --yellow: #ffd60a;
+  --indigo: #5e5ce6;
+  --teal: #40c8e0;
+  --pink: #ff375f;
+  --purple: #bf5af2;
+
+  --brand: #ff7d2e;
+  --brand-light: #ffa45c;
+  --brand-deep: #e8590c;
+
+  --label: #fff;
+  --label-2: rgba(235, 235, 245, 0.6);
+  --label-3: rgba(235, 235, 245, 0.3);
+  --label-4: rgba(235, 235, 245, 0.16);
+  --fill: rgba(120, 120, 128, 0.36);
+  --fill-2: rgba(120, 120, 128, 0.32);
+  --fill-3: rgba(118, 118, 128, 0.24);
+  --fill-4: rgba(118, 118, 128, 0.18);
+  --bg: #000;
+  --bg-2: #1c1c1e;
+  --separator: rgba(84, 84, 88, 0.65);
+  --glass: rgba(36, 36, 40, 0.52);
+  --glass-strong: rgba(44, 44, 48, 0.72);
+  --glass-edge: rgba(255, 255, 255, 0.09);
+  --glass-line: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+  --shadow-pop: 0 10px 40px rgba(0, 0, 0, 0.6);
+  --ink-btn: #f5f5f7;
+  --ink-btn-text: #000;
+  --canvas: #0b0b0d;
+  --seg-knob: #636366;
+  --ambient-1: 0.2;
+  --ambient-2: 0.2;
+  --ambient-3: 0.12;
 }
 
 @media (prefers-color-scheme: dark) {
-  html {
+  html:not([data-theme='light']) {
     --blue: #0a84ff;
     --green: #30d158;
     --red: #ff453a;
@@ -128,7 +177,15 @@ html {
     --ink-btn: #f5f5f7;
     --ink-btn-text: #000;
     --canvas: #0b0b0d;
+    --seg-knob: #636366;
+    --ambient-1: 0.2;
+    --ambient-2: 0.2;
+    --ambient-3: 0.12;
   }
+}
+
+html[data-theme='light'] {
+  color-scheme: light;
 }
 
 @media (prefers-reduced-motion: reduce) {

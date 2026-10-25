@@ -6,7 +6,8 @@ import * as style from './style.css';
 import type SnackBarElement from 'shared/custom-els/snack-bar';
 import 'shared/custom-els/snack-bar';
 import { Icon, IconName } from 'shared/icons';
-import { S } from 'shared/strings';
+import { S, lang, setLang } from 'shared/strings';
+import { currentTheme, setTheme, Theme } from 'shared/theme';
 import { reopenConsent, loadAnalytics } from 'shared/analytics';
 import PrivacyChoice from '../PrivacyChoice';
 
@@ -41,10 +42,25 @@ interface Props {
 
 interface State {
   beforeInstallEvent?: BeforeInstallPromptEvent;
+  theme: Theme;
+  installed: boolean;
+  installHelp: boolean;
 }
 
+const isIOS =
+  !__PRERENDER__ &&
+  (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
+
 export default class Intro extends Component<Props, State> {
-  state: State = {};
+  state: State = {
+    theme: __PRERENDER__ ? 'light' : currentTheme(),
+    installed:
+      !__PRERENDER__ &&
+      (matchMedia('(display-mode: standalone)').matches ||
+        (navigator as any).standalone === true),
+    installHelp: false,
+  };
   private fileInput?: HTMLInputElement;
 
   componentDidMount() {
@@ -53,6 +69,10 @@ export default class Intro extends Component<Props, State> {
       this.onBeforeInstallPromptEvent,
     );
     window.addEventListener('appinstalled', this.onAppInstalled);
+    window.addEventListener('zumo:theme', this.onThemeChange);
+    matchMedia('(prefers-color-scheme: dark)').addListener(this.onThemeChange);
+    document.addEventListener('keydown', this.onKeyDown);
+    document.addEventListener('pointerdown', this.onPointerDown, true);
     loadAnalytics();
   }
 
@@ -62,7 +82,43 @@ export default class Intro extends Component<Props, State> {
       this.onBeforeInstallPromptEvent,
     );
     window.removeEventListener('appinstalled', this.onAppInstalled);
+    window.removeEventListener('zumo:theme', this.onThemeChange);
+    matchMedia('(prefers-color-scheme: dark)').removeListener(
+      this.onThemeChange,
+    );
+    document.removeEventListener('keydown', this.onKeyDown);
+    document.removeEventListener('pointerdown', this.onPointerDown, true);
   }
+
+  private onThemeChange = () => this.setState({ theme: currentTheme() });
+
+  private onKeyDown = (event: KeyboardEvent) => {
+    if (event.key === 'Escape' && this.state.installHelp) {
+      this.setState({ installHelp: false });
+    }
+  };
+
+  private onPointerDown = (event: Event) => {
+    if (!this.state.installHelp) return;
+    const wrap = (this.base as HTMLElement).querySelector(
+      `.${style.installWrap}`,
+    );
+    if (wrap && !wrap.contains(event.target as Node)) {
+      this.setState({ installHelp: false });
+    }
+  };
+
+  private onThemeClick = (event: MouseEvent) => {
+    const button = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    setTheme(this.state.theme === 'dark' ? 'light' : 'dark', {
+      x: button.left + button.width / 2,
+      y: button.top + button.height / 2,
+    });
+  };
+
+  private onLangClick = () => {
+    setLang(lang === 'es' ? 'en' : 'es');
+  };
 
   private onFileChange = (event: Event): void => {
     const fileInput = event.target as HTMLInputElement;
@@ -82,12 +138,96 @@ export default class Intro extends Component<Props, State> {
   };
 
   private onInstallClick = () => {
-    this.state.beforeInstallEvent?.prompt();
+    const { beforeInstallEvent, installHelp } = this.state;
+    if (beforeInstallEvent) {
+      beforeInstallEvent.prompt();
+      return;
+    }
+    // Safari and Firefox don't offer a prompt: explain how instead
+    this.setState({ installHelp: !installHelp });
   };
 
   private onAppInstalled = () => {
-    this.setState({ beforeInstallEvent: undefined });
+    this.setState({
+      beforeInstallEvent: undefined,
+      installed: true,
+      installHelp: false,
+    });
   };
+
+  private renderActions() {
+    const { theme, installed, installHelp } = this.state;
+    const themeLabel = theme === 'dark' ? S.header.toLight : S.header.toDark;
+    return (
+      <div class={style.actions}>
+        <button
+          class={`icon-btn has-tip ${style.action}`}
+          onClick={this.onThemeClick}
+          aria-label={themeLabel}
+        >
+          <span
+            class={`${style.themeIcon} ${theme === 'dark' ? style.isDark : ''}`}
+          >
+            <Icon name="sun" size={18} class={style.sun} />
+            <Icon name="moon" size={17} class={style.moon} />
+          </span>
+          <span class="tip" aria-hidden="true">
+            {themeLabel}
+          </span>
+        </button>
+
+        {!installed && (
+          <div class={style.installWrap}>
+            <button
+              class={`icon-btn has-tip ${style.action}`}
+              onClick={this.onInstallClick}
+              aria-label={S.header.install}
+              aria-expanded={installHelp}
+              disabled={__PRERENDER__}
+            >
+              <Icon name="monitor-down" size={18} />
+              <span class="tip" aria-hidden="true">
+                {S.header.install}
+              </span>
+            </button>
+            {installHelp && (
+              <div class={style.installSheet} role="dialog">
+                <span class="tile t-orange">
+                  <Icon name="monitor-down" size={22} />
+                </span>
+                <h2 class={style.sheetTitle}>{S.install.title}</h2>
+                <p>{S.install.text}</p>
+                <p class={style.sheetStep}>
+                  {isIOS && <Icon name="share" size={16} />}
+                  {isIOS ? S.install.ios : S.install.other}
+                </p>
+                <button
+                  class="btn btn-tinted btn-sm btn-block"
+                  onClick={() => this.setState({ installHelp: false })}
+                >
+                  {S.install.ok}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        <button
+          class={`icon-btn has-tip ${style.action}`}
+          onClick={this.onLangClick}
+          aria-label={S.header.languageLabel}
+          lang={lang === 'es' ? 'en' : 'es'}
+        >
+          <span key={lang} class={style.langCode}>
+            {S.header.current}
+          </span>
+          <span class="tip" aria-hidden="true">
+            {S.header.language}
+          </span>
+        </button>
+      </div>
+    );
+  }
 
   private onPasteClick = async () => {
     let clipboardItems: ClipboardItem[];
@@ -105,7 +245,7 @@ export default class Intro extends Component<Props, State> {
     this.props.onFiles!([new File([blob], 'imagen.unknown')]);
   };
 
-  render({}: Props, { beforeInstallEvent }: State) {
+  render() {
     return (
       <div class={style.intro}>
         <div class="ambient" aria-hidden="true">
@@ -128,16 +268,7 @@ export default class Intro extends Component<Props, State> {
               <img src={logo} width="28" height="28" alt="" />
               zumo
             </a>
-            <div class={style.navEnd}>
-              {beforeInstallEvent && (
-                <button
-                  class="btn btn-glass btn-sm"
-                  onClick={this.onInstallClick}
-                >
-                  Instalar
-                </button>
-              )}
-            </div>
+            {this.renderActions()}
           </header>
 
           <main class={style.wrap}>
@@ -213,9 +344,7 @@ export default class Intro extends Component<Props, State> {
               <button class="unbutton" onClick={reopenConsent}>
                 {S.footer.cookies}
               </button>
-              <a href="https://github.com/amintikk/zumo">
-                {S.footer.source}
-              </a>
+              <a href="https://github.com/amintikk/zumo">{S.footer.source}</a>
             </nav>
           </footer>
         </div>

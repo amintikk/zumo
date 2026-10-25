@@ -5,6 +5,7 @@ import ogImage from 'url:static-build/assets/og.png';
 import interFont from 'url:static-build/assets/inter.woff2';
 import { escapeStyleScriptContent, siteOrigin } from 'static-build/utils';
 import { S, lang } from 'shared/strings';
+import { earlyPreferencesScript } from 'shared/theme';
 
 interface Props {
   title: string;
@@ -45,6 +46,8 @@ const Head: FunctionalComponent<Props> = ({
         content="#000000"
         media="(prefers-color-scheme: dark)"
       />
+      {/* Stored theme and language, applied before the first paint */}
+      <script dangerouslySetInnerHTML={{ __html: earlyPreferencesScript }} />
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
       <meta property="og:site_name" content="zumo" />

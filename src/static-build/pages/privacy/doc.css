@@ -43,6 +43,11 @@ header.wrap {
   padding: 56px 0 90px;
 }
 
+:global(html[lang='en']) .doc[lang='es'],
+:global(html:not([lang='en'])) .doc[lang='en'] {
+  display: none;
+}
+
 .h1 {
   margin: 0 0 8px;
   font: 700 clamp(36px, 4vw, 48px) / 1.08 var(--font-display);
