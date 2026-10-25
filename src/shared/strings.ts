@@ -13,9 +13,6 @@ const es = {
   },
 
   nav: {
-    how: 'Cómo funciona',
-    features: 'Funciones',
-    formats: 'Formatos',
     privacy: 'Privacidad',
     open: 'Abrir imágenes',
   },
@@ -23,8 +20,6 @@ const es = {
   hero: {
     title: 'Tus fotos, mucho<br>más ligeras.',
     lead: 'Suelta un ZIP o un montón de imágenes. Elige la calidad viendo el antes y el después, y descárgalas todas de una vez.',
-    cta: 'Elegir imágenes',
-    secondary: 'Cómo funciona',
     trust: ['Nada se sube', 'Gratis, sin cuenta', 'Fotos del iPhone incluidas'],
   },
 
@@ -34,74 +29,24 @@ const es = {
     subtitle: 'O un .zip, con carpetas y todo.',
     choose: 'Elegir archivos',
     paste: 'Pegar del portapapeles',
-    example: 'Resultados reales · JPEG, calidad 75, máximo 1200 px',
     dragging: 'Suelta para abrir',
   },
 
-  how: {
-    kicker: 'Cómo funciona',
-    title: 'Tres pasos. Nada que instalar.',
-    steps: [
-      {
-        title: 'Suelta tus fotos',
-        text: 'Un ZIP, una carpeta comprimida o varias imágenes a la vez.',
-      },
-      {
-        title: 'Ajusta mirando',
-        text: 'Mueve la calidad y compara con zoom. Pasa de una foto a otra con las flechas.',
-      },
-      {
-        title: 'Descarga el lote',
-        text: 'Un toque y te llevas un ZIP con todo, en las mismas carpetas.',
-      },
-    ],
-  },
-
-  features: {
-    kicker: 'Funciones',
-    title: 'Hecho para muchas fotos a la vez.',
-    shotAlt:
-      'El editor de zumo en el móvil con una foto del iPhone: arriba el original, abajo el resultado en JPEG y los ajustes debajo.',
+  info: {
     items: [
       {
         title: 'Lotes en un ZIP',
-        text: 'Cientos de fotos de una vez. El ZIP de salida mantiene tus carpetas.',
+        text: 'Cientos de fotos de una vez. El ZIP que descargas mantiene tus carpetas.',
       },
       {
         title: 'Nada sale de tu equipo',
         text: 'Todo se procesa en tu navegador. No subimos ni una sola imagen.',
       },
       {
-        title: 'Antes y después',
-        text: 'Compara con zoom y elige la calidad mirando, no a ciegas.',
-      },
-      {
         title: 'Fotos del iPhone',
-        text: 'Abre HEIC y TIFF y pásalos a JPEG, WebP o AVIF.',
-      },
-      {
-        title: 'Tamaño máximo',
-        text: 'Limita a 1920 px o a lo que quieras, sin deformar nada.',
-      },
-      {
-        title: 'También sin conexión',
-        text: 'Instálala como app y úsala aunque no tengas internet.',
+        text: 'Abre HEIC, TIFF, PNG o JPG y guárdalos en JPEG, WebP o AVIF.',
       },
     ],
-  },
-
-  formats: {
-    kicker: 'Formatos',
-    title: 'Entra lo que tengas.<br>Sale lo que necesites.',
-    inTitle: 'Abre',
-    inText: 'Lo que salga de tu móvil, tu cámara o tu escáner.',
-    outTitle: 'Guarda en',
-    outText: 'Elige según dónde vayan a acabar las fotos.',
-  },
-
-  final: {
-    title: '¿Listo? Suelta tus fotos.',
-    text: 'Sin registro y sin esperas. Funciona en el móvil y en el ordenador.',
   },
 
   footer: {

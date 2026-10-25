@@ -24,7 +24,7 @@ const jsonLd = JSON.stringify({
   inLanguage: lang,
   isAccessibleForFree: true,
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
-  featureList: S.features.items.map((item) => item.title),
+  featureList: S.info.items.map((item) => item.title),
 });
 
 const Index: FunctionalComponent = () => (
