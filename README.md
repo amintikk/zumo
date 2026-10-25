@@ -23,6 +23,10 @@ servidor: el servidor solo entrega archivos estáticos.
   - Se ignoran los archivos que no son imágenes y la basura de los compresores
     (`__MACOSX/`, archivos ocultos, `Thumbs.db`).
   - Se procesan entre 1 y 4 imágenes a la vez, según los núcleos y la memoria del dispositivo.
+- **Formatos de entrada:** JPG, PNG, WebP, AVIF, JPEG XL, GIF, BMP, SVG, QOI, WebP2 y además
+  **HEIC/HEIF** (fotos del iPhone) y **TIFF**. Safari abre HEIC por sí mismo; en el resto de
+  navegadores se usa libheif en WebAssembly, que solo se descarga (~2 MB) la primera vez que
+  se abre un HEIC. TIFF usa UTIF (~100 KB), también bajo demanda.
 - **Una imagen:** el editor de comparación de Squoosh, con MozJPEG, WebP, AVIF, JPEG XL,
   OxiPNG, QOI, WebP2, redimensionado y reducción de paleta.
 
@@ -45,6 +49,7 @@ se quiera recompilarlos.
 | `src/client/lazy-app/batch/process.ts`     | Procesa el lote en paralelo y crea el ZIP de salida                        |
 | `src/client/lazy-app/Compress/Sidebar/`    | Panel único del editor (formato, tamaño, resultado y lote)                 |
 | `src/client/lazy-app/Compress/pipeline.ts` | Decodificar / procesar / comprimir (extraído del editor para reutilizarlo) |
+| `src/features/decoders/heic/`, `tiff/`     | Decodificadores de HEIC (libheif) y TIFF (UTIF), cargados bajo demanda     |
 | `src/shared/prerendered-app/Intro/`        | Portada                                                                    |
 
 ## Despliegue
@@ -63,3 +68,8 @@ purgar la caché de Cloudflare de `zumo.aminox.dev`.
 Apache 2.0. zumo es un fork modificado de [Squoosh](https://github.com/GoogleChromeLabs/squoosh)
 (© Google): se han añadido el procesado por lotes con ZIP, una portada y una identidad nuevas, la
 interfaz en español y la analítica propia. Ver [LICENSE](LICENSE).
+
+Incluye [libheif](https://github.com/strukturag/libheif) vía
+[libheif-js](https://github.com/catdad-experiments/libheif-js) (LGPL-3.0), que se sirve como un
+archivo aparte (`libheif-bundle-*.js`) y puede sustituirse por otra versión, y
+[UTIF](https://github.com/photopea/UTIF.js) (MIT).

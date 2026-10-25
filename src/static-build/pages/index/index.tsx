@@ -30,7 +30,7 @@ const gaSnippet = `window.dataLayer=window.dataLayer||[];function gtag(){dataLay
 
 const title = 'zumo · Optimiza imágenes en lote desde un ZIP';
 const description =
-  'Comprime JPG, PNG, WebP, AVIF y JPEG XL en tu navegador. Sube un ZIP con cientos de imágenes y descárgalas todas optimizadas, sin subirlas a ningún servidor.';
+  'Comprime y convierte HEIC, JPG, PNG, WebP, AVIF, TIFF y JPEG XL en tu navegador. Sube un ZIP con cientos de imágenes y descárgalas todas optimizadas, sin subirlas a ningún servidor.';
 
 const Index: FunctionalComponent<Props> = () => (
   <html lang="es">

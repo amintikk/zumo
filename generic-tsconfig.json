@@ -18,7 +18,8 @@
       "client/*": ["src/client/*"],
       "shared/*": ["src/shared/*"],
       "features/*": ["src/features/*"],
-      "worker-shared/*": ["src/worker-shared/*"]
+      "worker-shared/*": ["src/worker-shared/*"],
+      "utif2": ["src/features/decoders/tiff/utif2.d.ts"]
     }
   }
 }

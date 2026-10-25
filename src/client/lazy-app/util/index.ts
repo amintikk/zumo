@@ -95,12 +95,18 @@ const magicNumberMapInput = [
   [/^\x89PNG\x0D\x0A\x1A\x0A/, 'image/png'],
   [/^\xFF\xD8\xFF/, 'image/jpeg'],
   [/^BM/, 'image/bmp'],
-  [/^I I/, 'image/tiff'],
-  [/^II*/, 'image/tiff'],
-  [/^MM\x00*/, 'image/tiff'],
+  [/^II\x2A\x00/, 'image/tiff'],
+  [/^MM\x00\x2A/, 'image/tiff'],
   [/^RIFF....WEBPVP8[LX ]/s, 'image/webp'],
   [/^\xF4\xFF\x6F/, 'image/webp2'],
-  [/^\x00\x00\x00 ftypavif\x00\x00\x00\x00/, 'image/avif'],
+  // ISOBMFF: AVIF and HEIC share the container, so check the brands.
+  // "mif1"/"msf1" are generic, so look for "avif" among the compatible brands.
+  [/^....ftypavi[fs]/s, 'image/avif'],
+  [/^....ftyp(mif1|msf1).{0,24}avi[fs]/s, 'image/avif'],
+  [
+    /^....ftyp(heic|heix|heim|heis|hevc|hevx|hevm|hevs|mif1|msf1)/s,
+    'image/heic',
+  ],
   [/^\xff\x0a/, 'image/jxl'],
   [/^\x00\x00\x00\x0cJXL \x0d\x0a\x87\x0a/, 'image/jxl'],
   [/^qoif/, 'image/qoi'],
@@ -113,7 +119,7 @@ const magicNumberToMimeType = new Map<RegExp, ImageMimeTypes>(
 );
 
 export async function sniffMimeType(blob: Blob): Promise<ImageMimeTypes | ''> {
-  const firstChunk = await blobToArrayBuffer(blob.slice(0, 16));
+  const firstChunk = await blobToArrayBuffer(blob.slice(0, 40));
   const firstChunkString = Array.from(new Uint8Array(firstChunk))
     .map((v) => String.fromCodePoint(v))
     .join('');

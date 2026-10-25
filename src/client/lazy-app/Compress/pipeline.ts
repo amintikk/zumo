@@ -44,6 +44,12 @@ export async function decodeImage(
       if (mimeType === 'image/qoi') {
         return await workerBridge.qoiDecode(signal, blob);
       }
+      if (mimeType === 'image/heic') {
+        return await workerBridge.heicDecode(signal, blob);
+      }
+      if (mimeType === 'image/tiff') {
+        return await workerBridge.tiffDecode(signal, blob);
+      }
     }
     // Otherwise fall through and try built-in decoding for a laugh.
     return await builtinDecode(signal, blob);

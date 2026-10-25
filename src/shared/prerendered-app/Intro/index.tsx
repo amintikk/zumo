@@ -12,7 +12,7 @@ const supportsClipboardAPI =
   !__PRERENDER__ && navigator.clipboard && navigator.clipboard.read;
 
 const acceptedFiles =
-  'image/*,.zip,application/zip,application/x-zip-compressed,.avif,.jxl,.qoi,.wp2,.svg';
+  'image/*,.zip,application/zip,application/x-zip-compressed,.heic,.heif,.tif,.tiff,.avif,.jxl,.qoi,.wp2,.svg';
 
 async function getImageClipboardItem(
   items: ClipboardItem[],
@@ -36,7 +36,7 @@ const features = [
   },
   {
     title: 'Formatos modernos',
-    text: 'AVIF, WebP, JPEG XL, MozJPEG y OxiPNG. Compara el antes y el después con zoom y elige la mejor calidad para cada peso.',
+    text: 'Abre fotos HEIC del iPhone, TIFF, PNG o JPG y conviértelas a AVIF, WebP, JPEG XL, MozJPEG u OxiPNG. Compara el antes y el después con zoom.',
     icon: 'M21 3H3a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h18a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Zm0 16h-9V5h9v14ZM5 15l2.5-3.2 1.8 2.2 2.5-3.2V17H5v-2Z',
   },
 ];
@@ -167,7 +167,7 @@ export default class Intro extends Component<Props, State> {
               Más ligeras, misma pinta, y sin subirlas a ningún sitio.
             </p>
             <ul class={style.badges}>
-              <li>JPG · PNG · WebP · AVIF · JXL</li>
+              <li>HEIC · JPG · PNG · WebP · AVIF · TIFF</li>
               <li>100 % en tu navegador</li>
               <li>Gratis</li>
             </ul>
