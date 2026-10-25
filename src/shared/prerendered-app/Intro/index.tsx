@@ -137,9 +137,6 @@ export default class Intro extends Component<Props, State> {
                   Instalar
                 </button>
               )}
-              <a class={style.navLink} href="/privacidad/">
-                {S.nav.privacy}
-              </a>
             </div>
           </header>
 
