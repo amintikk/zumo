@@ -380,3 +380,16 @@
   font: 600 12px var(--font);
   font-variant-numeric: tabular-nums;
 }
+
+@keyframes pop {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.08);
+  }
+  to {
+    transform: scale(1);
+  }
+}

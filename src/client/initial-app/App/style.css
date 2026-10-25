@@ -74,3 +74,16 @@
   color: var(--label);
   animation: rise-in var(--dur) var(--ease) both;
 }
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+}

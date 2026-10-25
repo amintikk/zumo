@@ -53,12 +53,6 @@
     animation: drift 26s ease-in-out infinite alternate-reverse;
   }
 
-  @keyframes drift {
-    to {
-      transform: translate(-60px, 40px) scale(1.08);
-    }
-  }
-
   /* Buttons */
   .btn {
     display: inline-flex;
@@ -500,12 +494,6 @@
     height: 14px;
   }
 
-  @keyframes spin {
-    to {
-      transform: rotate(1turn);
-    }
-  }
-
   .skeleton {
     border-radius: 6px;
     background: linear-gradient(
@@ -516,12 +504,6 @@
     );
     background-size: 200% 100%;
     animation: shimmer 1.4s linear infinite;
-  }
-
-  @keyframes shimmer {
-    to {
-      background-position: -200% 0;
-    }
   }
 
   /* Progress */
@@ -551,32 +533,6 @@
   .no-js .reveal {
     opacity: 1;
     transform: none;
-  }
-
-  @keyframes fade-in {
-    from {
-      opacity: 0;
-    }
-  }
-
-  @keyframes rise-in {
-    from {
-      opacity: 0;
-      transform: translateY(10px) scale(0.98);
-    }
-  }
-
-  @keyframes pop {
-    from {
-      transform: scale(0.4);
-      opacity: 0;
-    }
-    60% {
-      transform: scale(1.08);
-    }
-    to {
-      transform: scale(1);
-    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -642,5 +598,51 @@
 
   .has-tip[aria-expanded='true'] .tip {
     display: none;
+  }
+}
+
+/* Keyframes used by the global classes above. Declared with :global() so
+   CSS modules don't rename them (local files define their own). */
+@keyframes :global(drift) {
+  to {
+    transform: translate(-60px, 40px) scale(1.08);
+  }
+}
+
+@keyframes :global(spin) {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@keyframes :global(shimmer) {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes :global(fade-in) {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes :global(rise-in) {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+}
+
+@keyframes :global(pop) {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.08);
+  }
+  to {
+    transform: scale(1);
   }
 }
