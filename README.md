@@ -1,4 +1,4 @@
-<img src="src/shared/prerendered-app/Intro/imgs/zumo-mark.svg" width="64" height="64" alt="">
+<img src="src/shared/prerendered-app/Intro/imgs/zumo-icon.svg" width="64" height="64" alt="">
 
 # zumo
 
