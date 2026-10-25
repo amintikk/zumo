@@ -216,7 +216,7 @@ export default class Intro extends Component<Props, State> {
               <button class="unbutton" onClick={reopenConsent}>
                 {S.footer.cookies}
               </button>
-              <a href="https://github.com/GoogleChromeLabs/squoosh">
+              <a href="https://github.com/amintikk/zumo">
                 {S.footer.source}
               </a>
             </nav>
