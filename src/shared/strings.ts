@@ -59,7 +59,6 @@ const es = {
   },
 
   stats: {
-    title: 'zumo en cifras',
     images: 'Imágenes optimizadas',
     saved: 'Espacio ahorrado',
     reduction: 'Más ligeras, de media',
@@ -325,7 +324,6 @@ const en: Strings = {
   },
 
   stats: {
-    title: 'zumo in numbers',
     images: 'Images optimized',
     saved: 'Space saved',
     reduction: 'Lighter, on average',

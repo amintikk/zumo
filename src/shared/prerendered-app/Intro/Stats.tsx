@@ -74,10 +74,7 @@ export default class Stats extends Component<{}, State> {
     ];
 
     return (
-      <section class={`${style.stats} glass`} aria-label={S.stats.title}>
-        <header class={style.statsHead}>
-          <h2 class={style.h3}>{S.stats.title}</h2>
-        </header>
+      <section class={`${style.stats} glass`} aria-label="zumo">
         <dl class={style.statsGrid}>
           {items.map(([value, unit, label]) => (
             <div class={style.stat}>
