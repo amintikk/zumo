@@ -58,6 +58,15 @@ const es = {
     ],
   },
 
+  stats: {
+    title: 'zumo en cifras',
+    note: 'Contador anónimo de todos los usuarios',
+    images: 'Imágenes optimizadas',
+    saved: 'Espacio ahorrado',
+    reduction: 'Más ligeras, de media',
+    favourite: 'Formato favorito',
+  },
+
   footer: {
     source: 'Código fuente',
     cookies: 'Cookies',
@@ -74,7 +83,7 @@ const es = {
 
   privacy: {
     title: 'Privacidad',
-    updated: 'Actualizado el 25 de octubre de 2026',
+    updated: 'Actualizado el 2 de noviembre de 2026',
     sections: [
       {
         title: 'Tus imágenes',
@@ -82,7 +91,11 @@ const es = {
       },
       {
         title: 'Analítica',
-        text: 'Si la aceptas, usamos Google Analytics para contar visitas de forma agregada (páginas vistas, país y tipo de dispositivo) y cómo se usa zumo: cuántas imágenes abres, qué formato eliges y si descargas el resultado. Nunca enviamos nombres de archivo, tamaños ni el contenido de tus fotos. Si la rechazas, no se carga.',
+        text: 'Si la aceptas, usamos Google Analytics para contar visitas de forma agregada (páginas vistas, país y tipo de dispositivo) y cómo se usa zumo: cuántas imágenes abres, qué formato eliges y si descargas el resultado. A Google nunca le enviamos nombres de archivo, tamaños ni el contenido de tus fotos. Si la rechazas, no se carga.',
+      },
+      {
+        title: 'Contador público',
+        text: 'Cuando descargas un resultado, tu navegador envía solo esto: cuántas imágenes, cuánto pesaban antes y después, y el formato elegido. Se suman a un total anónimo («zumo en cifras»). No incluye nombres, imágenes ni nada que te identifique, no usa cookies y no guardamos tu IP.',
       },
       {
         title: 'Lo que se guarda en tu navegador',
@@ -312,6 +325,15 @@ const en: Strings = {
     ],
   },
 
+  stats: {
+    title: 'zumo in numbers',
+    note: 'Anonymous count across everyone',
+    images: 'Images optimized',
+    saved: 'Space saved',
+    reduction: 'Lighter, on average',
+    favourite: 'Favourite format',
+  },
+
   footer: {
     source: 'Source code',
     cookies: 'Cookies',
@@ -328,7 +350,7 @@ const en: Strings = {
 
   privacy: {
     title: 'Privacy',
-    updated: 'Updated on 25 October 2026',
+    updated: 'Updated on 2 November 2026',
     sections: [
       {
         title: 'Your images',
@@ -336,7 +358,11 @@ const en: Strings = {
       },
       {
         title: 'Analytics',
-        text: 'If you accept it, we use Google Analytics to count visits in aggregate (page views, country and device type) and how zumo is used: how many images you open, which format you pick and whether you download the result. We never send file names, sizes or the content of your photos. If you decline, it is not loaded.',
+        text: 'If you accept it, we use Google Analytics to count visits in aggregate (page views, country and device type) and how zumo is used: how many images you open, which format you pick and whether you download the result. We never send Google file names, sizes or the content of your photos. If you decline, it is not loaded.',
+      },
+      {
+        title: 'Public counter',
+        text: 'When you download a result, your browser sends only this: how many images, how much they weighed before and after, and the chosen format. They are added to an anonymous total (“zumo in numbers”). It includes no names, no images and nothing that identifies you, uses no cookies, and we do not keep your IP.',
       },
       {
         title: 'What your browser keeps',

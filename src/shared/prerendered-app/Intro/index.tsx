@@ -11,6 +11,7 @@ import { currentTheme, setTheme, Theme } from 'shared/theme';
 import { canInstall, promptInstall } from 'shared/install';
 import { reopenConsent, loadAnalytics } from 'shared/analytics';
 import PrivacyChoice from '../PrivacyChoice';
+import Stats from './Stats';
 
 const supportsClipboardAPI =
   !__PRERENDER__ && navigator.clipboard && navigator.clipboard.read;
@@ -258,6 +259,8 @@ export default class Intro extends Component<Props, State> {
                 </li>
               ))}
             </ul>
+
+            {!__PRERENDER__ && <Stats />}
           </main>
 
           <footer class={`${style.wrap} ${style.footer}`}>

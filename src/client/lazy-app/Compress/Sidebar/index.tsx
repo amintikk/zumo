@@ -24,6 +24,7 @@ import {
 import { Icon } from 'shared/icons';
 import { S } from 'shared/strings';
 import { track } from 'shared/analytics';
+import { reportOptimized } from 'shared/stats';
 import {
   formatBytes,
   formatNames,
@@ -263,6 +264,43 @@ export default class Sidebar extends Component<Props, State> {
     }
   };
 
+  /** Downloads already counted, so a second click doesn't count twice */
+  private counted = new Set<string>();
+
+  private onDownloadImage = () => {
+    const { source, resultFile, downloadUrl, loading } = this.props;
+    if (!source || !resultFile || !downloadUrl || loading) return;
+    track('download_image', { format: this.formatName() });
+    if (this.counted.has(downloadUrl)) return;
+    this.counted.add(downloadUrl);
+    reportOptimized({
+      images: 1,
+      before: source.file.size,
+      after: resultFile.size,
+      format: this.formatName(),
+    });
+  };
+
+  private onDownloadZip = () => {
+    const { zipUrl, results } = this.state;
+    const ok = (results.filter(Boolean) as BatchResult[]).filter(
+      (result) => result.output,
+    );
+    track('download_zip', {
+      format: this.formatName(),
+      image_count: this.props.batch?.entries.length || 0,
+    });
+    if (!zipUrl || this.counted.has(zipUrl)) return;
+    this.counted.add(zipUrl);
+    reportOptimized({
+      images: ok.length,
+      before: ok.reduce((sum, r) => sum + r.entry.file.size, 0),
+      after: ok.reduce((sum, r) => sum + r.output!.size, 0),
+      format: this.formatName(),
+      zip: true,
+    });
+  };
+
   private onCancel = () => {
     this.abortController?.abort();
     this.setState({ running: false, zipping: false, ranWith: undefined });
@@ -478,9 +516,7 @@ export default class Sidebar extends Component<Props, State> {
               href={ready ? downloadUrl : undefined}
               download={ready ? resultFile!.name : undefined}
               aria-disabled={!ready}
-              onClick={() =>
-                ready && track('download_image', { format: this.formatName() })
-              }
+              onClick={this.onDownloadImage}
             >
               <Icon name="download" size={15} />
               {S.editor.downloadThis}
@@ -619,9 +655,7 @@ export default class Sidebar extends Component<Props, State> {
             href={ready ? downloadUrl : undefined}
             download={ready ? resultFile!.name : undefined}
             aria-disabled={!ready}
-            onClick={() =>
-              ready && track('download_image', { format: this.formatName() })
-            }
+            onClick={this.onDownloadImage}
           >
             <Icon name="download" size={18} />
             {ready
@@ -680,12 +714,7 @@ export default class Sidebar extends Component<Props, State> {
             class="btn btn-primary btn-block"
             href={zipUrl}
             download={`${batch.name}-zumo.zip`}
-            onClick={() =>
-              track('download_zip', {
-                format: this.formatName(),
-                image_count: total,
-              })
-            }
+            onClick={this.onDownloadZip}
           >
             <Icon name="download" size={18} />
             {S.batch.downloadZip} · {formatBytes(zipSize!)}
