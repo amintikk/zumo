@@ -430,34 +430,6 @@ main.wrap {
   gap: 4px 16px;
 }
 
-.stats-note {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 13px;
-  color: var(--label-2);
-}
-
-.live-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--green);
-  box-shadow: 0 0 0 0 color-mix(in srgb, var(--green) 50%, transparent);
-  animation: live 2.4s ease-out infinite;
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
-}
-
-@keyframes live {
-  70%,
-  100% {
-    box-shadow: 0 0 0 7px transparent;
-  }
-}
-
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

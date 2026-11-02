@@ -77,10 +77,6 @@ export default class Stats extends Component<{}, State> {
       <section class={`${style.stats} glass`} aria-label={S.stats.title}>
         <header class={style.statsHead}>
           <h2 class={style.h3}>{S.stats.title}</h2>
-          <span class={style.statsNote}>
-            <i class={style.liveDot} aria-hidden="true" />
-            {S.stats.note}
-          </span>
         </header>
         <dl class={style.statsGrid}>
           {items.map(([value, unit, label]) => (

@@ -60,7 +60,6 @@ const es = {
 
   stats: {
     title: 'zumo en cifras',
-    note: 'Contador anónimo de todos los usuarios',
     images: 'Imágenes optimizadas',
     saved: 'Espacio ahorrado',
     reduction: 'Más ligeras, de media',
@@ -327,7 +326,6 @@ const en: Strings = {
 
   stats: {
     title: 'zumo in numbers',
-    note: 'Anonymous count across everyone',
     images: 'Images optimized',
     saved: 'Space saved',
     reduction: 'Lighter, on average',
